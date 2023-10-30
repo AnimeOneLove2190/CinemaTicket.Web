@@ -23,6 +23,6 @@ namespace CinemaTicket.WebApi
                     webBuilder.UseStartup<Startup>();
                 });
         //Add develop branch
-        //Add feature/603
+        //Add feature/603/1
     }
 }
