@@ -6,10 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CinemaTicket.DataAccess;
 
 namespace CinemaTicket.WebApi
 {
@@ -26,6 +28,8 @@ namespace CinemaTicket.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            string connection = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<CinemaManagerContext>(options => options.UseSqlServer(connection));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
