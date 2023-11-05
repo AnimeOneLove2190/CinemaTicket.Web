@@ -14,7 +14,7 @@ namespace CinemaTicket.WebApi.Controllers
     public class MovieController : ControllerBase
     {
         private readonly IMovieService movieService;
-        public MovieController(IMovieService movieService, IGenreService genreService)
+        public MovieController(IMovieService movieService)
         {
             this.movieService = movieService;
         }

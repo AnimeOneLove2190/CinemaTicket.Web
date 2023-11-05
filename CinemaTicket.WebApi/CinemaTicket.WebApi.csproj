@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CinemaTicket.BusinessLogic.Interfaces\CinemaTicket.BusinessLogic.Interfaces.csproj" />
+    <ProjectReference Include="..\CinemaTicket.BusinessLogicServices\CinemaTicket.BusinessLogicServices.csproj" />
     <ProjectReference Include="..\CinemaTicket.DataAccess\CinemaTicket.DataAccess.csproj" />
     <ProjectReference Include="..\CinemaTicket.DataTransferObjects\CinemaTicket.DataTransferObjects.csproj" />
     <ProjectReference Include="..\CinemaTicket.Entities\CinemaTicket.Entities.csproj" />
