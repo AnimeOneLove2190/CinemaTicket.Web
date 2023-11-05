@@ -9,7 +9,7 @@ using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices
 {
-    class MovieService : IMovieService
+    public class MovieService : IMovieService
     {
         private readonly IMovieDataAccess movieDataAccess;
         private readonly IGenreDataAccess genreDataAccess;
@@ -47,6 +47,7 @@ namespace CinemaTicket.BusinessLogicServices
                 Duration = movieCreate.Duration,
                 CreatedOn = DateTime.Now,
                 ModifiedOn = DateTime.Now,
+                Genres = new List<Genre>()
             };
             var genresFromDB = await genreDataAccess.GetGenreListAsync();
             var genreNamesFromDB = genresFromDB.Select(x => x.Name).ToList();

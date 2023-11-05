@@ -14,21 +14,14 @@ namespace CinemaTicket.WebApi.Controllers
     public class MovieController : ControllerBase
     {
         private readonly IMovieService movieService;
-        public MovieController(IMovieService movieService)
+        public MovieController(IMovieService movieService, IGenreService genreService)
         {
             this.movieService = movieService;
         }
         [HttpPost]
         [Route("AddMovie")]
-        public async Task CreateMovieAsync(string movieName, string movieDescription, int movieDuration, List<string> genreNames)
+        public async Task CreateMovieAsync(MovieCreate movieCreate)
         {
-            var movieCreate = new MovieCreate
-            {
-                Name = movieName,
-                Description = movieDescription,
-                Duration = movieDuration,
-                GenreNames = genreNames,
-            };
             await movieService.CreateAsync(movieCreate);
         }
     }

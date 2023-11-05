@@ -9,7 +9,7 @@ using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.DataAccess
 {
-    class MovieDataAccess : IMovieDataAccess
+    public class MovieDataAccess : IMovieDataAccess
     {
         private readonly CinemaManagerContext cinemaManagerContext;
         public MovieDataAccess(CinemaManagerContext cinemaManagerContext)
