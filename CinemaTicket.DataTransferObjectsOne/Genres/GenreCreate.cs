@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CinemaTicket.DataAccess
+namespace CinemaTicket.DataTransferObjectsOne.Genres
 {
-    class RowDataAcces
+    class GenreCreate
     {
     }
 }

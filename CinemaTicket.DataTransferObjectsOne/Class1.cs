@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CinemaTicket.DataTransferObjects
+namespace CinemaTicket.DataTransferObjectsOne
 {
     public class Class1
     {

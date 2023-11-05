@@ -5,19 +5,19 @@ VisualStudioVersion = 16.0.33801.447
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.WebApi", "CinemaTicket.WebApi\CinemaTicket.WebApi.csproj", "{8F538255-225B-4053-AA6C-5934869193EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.Entities", "CinemaTicket.Entities\CinemaTicket.Entities.csproj", "{C3A248C5-DE60-4555-8407-2C88236EA679}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.Entities", "CinemaTicket.Entities\CinemaTicket.Entities.csproj", "{C3A248C5-DE60-4555-8407-2C88236EA679}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.DataAccess", "CinemaTicket.DataAccess\CinemaTicket.DataAccess.csproj", "{821808FB-1D5C-4EF7-9436-543CDD30EBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.DataAccess", "CinemaTicket.DataAccess\CinemaTicket.DataAccess.csproj", "{821808FB-1D5C-4EF7-9436-543CDD30EBA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.DataAccess.Interfaces", "CinemaTicket.DataAccess.Interfaces\CinemaTicket.DataAccess.Interfaces.csproj", "{54D34310-6BB5-4AC4-B2F0-DBD5C1208A29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.DataAccess.Interfaces", "CinemaTicket.DataAccess.Interfaces\CinemaTicket.DataAccess.Interfaces.csproj", "{54D34310-6BB5-4AC4-B2F0-DBD5C1208A29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.DataTransferObjects", "CinemaTicket.DataTransferObjects\CinemaTicket.DataTransferObjects.csproj", "{98BCC4F0-3209-46D9-AEEB-6AC104C68939}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.DataTransferObjects", "CinemaTicket.DataTransferObjects\CinemaTicket.DataTransferObjects.csproj", "{98BCC4F0-3209-46D9-AEEB-6AC104C68939}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.BusinessLogic.Interfaces", "CinemaTicket.BusinessLogic.Interfaces\CinemaTicket.BusinessLogic.Interfaces.csproj", "{3F7CB75E-E699-47B5-A17A-A5EA1506A179}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.BusinessLogic.Interfaces", "CinemaTicket.BusinessLogic.Interfaces\CinemaTicket.BusinessLogic.Interfaces.csproj", "{3F7CB75E-E699-47B5-A17A-A5EA1506A179}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.BusinessLogicServices", "CinemaTicket.BusinessLogicServices\CinemaTicket.BusinessLogicServices.csproj", "{22E649D3-A869-4856-AA6F-F45340B094DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.BusinessLogicServices", "CinemaTicket.BusinessLogicServices\CinemaTicket.BusinessLogicServices.csproj", "{22E649D3-A869-4856-AA6F-F45340B094DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.TestObjects", "CinemaTicket.TestObjetcs\CinemaTicket.TestObjects.csproj", "{9B18E93C-EB0C-491A-B5C7-9EAA99864055}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.TestObjects", "CinemaTicket.TestObjetcs\CinemaTicket.TestObjects.csproj", "{9B18E93C-EB0C-491A-B5C7-9EAA99864055}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CinemaTicket.DataAccess;
+using CinemaTicket.DataAccess.Interfaces;
+using CinemaTicket.BusinessLogicServices;
+using CinemaTicket.BusinessLogic.Interfaces;
 
 namespace CinemaTicket.WebApi
 {
@@ -30,6 +33,10 @@ namespace CinemaTicket.WebApi
             services.AddControllers();
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CinemaManagerContext>(options => options.UseSqlServer(connection));
+            services.AddScoped<IGenreDataAccess, GenreDataAccess>();
+            services.AddScoped<IMovieDataAccess, MovieDataAccess>();
+            services.AddScoped<IGenreService, GenreService>();
+            services.AddScoped<IMovieService, MovieService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
