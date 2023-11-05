@@ -24,5 +24,6 @@ namespace CinemaTicket.WebApi
                 });
         //Add develop branch
         //Add feature/602
+        //Add feature/604
     }
 }
