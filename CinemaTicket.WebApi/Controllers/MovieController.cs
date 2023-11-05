@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CinemaTicket.BusinessLogic.Interfaces;
+using CinemaTicket.DataTransferObjects.Movies;
 
 namespace CinemaTicket.WebApi.Controllers
 {
@@ -21,7 +22,14 @@ namespace CinemaTicket.WebApi.Controllers
         [Route("AddMovie")]
         public async Task CreateMovieAsync(string movieName, string movieDescription, int movieDuration, List<string> genreNames)
         {
-            await movieService.CreateAsync(movieName, movieDescription, movieDuration, genreNames);
+            var movieCreate = new MovieCreate
+            {
+                Name = movieName,
+                Description = movieDescription,
+                Duration = movieDuration,
+                GenreNames = genreNames,
+            };
+            await movieService.CreateAsync(movieCreate);
         }
     }
 }

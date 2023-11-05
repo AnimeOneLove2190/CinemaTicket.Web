@@ -5,18 +5,19 @@ using System.Threading.Tasks;
 using System.Linq;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
+using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.DataTransferObjects.Genres;
 
 namespace CinemaTicket.BusinessLogicServices
 {
-    public class GenreService
+    public class GenreService : IGenreService
     {
         private readonly IGenreDataAccess genreDataAccess;
         public GenreService(IGenreDataAccess genreDataAccess)
         {
             this.genreDataAccess = genreDataAccess;
         }
-        public async Task CreateAsync(GenreCreate genreCreate) // Эта мразь не может увидеть GenreCreate, который находится в проекте DTO, поэтому пришлось засунуть его копию в проект с сервисами
+        public async Task CreateAsync(GenreCreate genreCreate)
         {
             if (genreCreate == null)
             {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CinemaTicket.Entities;
 
 
-namespace CinemaTicket.BusinessLogic.Interfaces
+namespace CinemaTicket.DataAccess.Interfaces
 {
     public interface IGenreDataAccess
     {

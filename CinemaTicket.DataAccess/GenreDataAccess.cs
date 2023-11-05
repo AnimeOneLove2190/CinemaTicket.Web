@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using CinemaTicket.Entities;
-using CinemaTicket.BusinessLogic.Interfaces;
+using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.DataAccess
 {

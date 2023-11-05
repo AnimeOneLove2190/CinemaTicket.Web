@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CinemaTicket.DataTransferObjects.Movies
 {
@@ -7,7 +8,6 @@ namespace CinemaTicket.DataTransferObjects.Movies
         public string Name { get; set; }
         public string Description { get; set; }
         public int Duration { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public DateTime ModifiedOn { get; set; }
+        public List<string> GenreNames { get; set; }
     }
 }
