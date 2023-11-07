@@ -30,5 +30,17 @@ namespace CinemaTicket.WebApi.Controllers
         {
             await movieService.UpdateAsync(movieUpdate);
         }
+        [HttpGet]
+        [Route("GetMovie")]
+        public async Task<MovieDetails> GetGenreAsync(int id)
+        {
+            return await movieService.GetAsync(id);
+        }
+        [HttpGet]
+        [Route("GetMovieList")]
+        public async Task<List<MovieListElement>> GetGenreListAsync()
+        {
+            return await movieService.GetListAsync();
+        }
     }
 }
