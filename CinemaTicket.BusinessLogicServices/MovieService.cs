@@ -140,24 +140,22 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 throw new Exception();
             }
-            var movieDetails = new MovieDetails
+            return new MovieDetails
             {
                 Id = movieFromDB.Id,
                 Name = movieFromDB.Name,
                 Description = movieFromDB.Description,
                 CreatedOn = movieFromDB.CreatedOn,
                 ModifiedOn = movieFromDB.ModifiedOn,
-                Genres = new List<GenreDetails>()
+                Genres = movieFromDB.Genres.Select(x => new GenreDetails
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    CreatedOn = x.CreatedOn,
+                    ModifiedOn = x.ModifiedOn,
+                }).ToList()
             };
-            movieDetails.Genres = movieFromDB.Genres.Select(x => new GenreDetails
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
-                CreatedOn = x.CreatedOn,
-                ModifiedOn = x.ModifiedOn,
-            }).ToList();
-            return movieDetails;
         }
         public async Task<List<MovieListElement>> GetListAsync()
         {
