@@ -74,5 +74,63 @@ namespace CinemaTicket.BusinessLogicServices
                 await genreDataAccess.CreateAsync(genres);
             }
         }
+        public async Task UpdateAsync(MovieUpdate movieUpdate)
+        {
+            if (string.IsNullOrEmpty(movieUpdate.Name) || string.IsNullOrWhiteSpace(movieUpdate.Name))
+            {
+                throw new Exception();
+            }
+            if (string.IsNullOrEmpty(movieUpdate.Description) || string.IsNullOrWhiteSpace(movieUpdate.Description))
+            {
+                throw new Exception();
+            }
+            if (movieUpdate.Duration <= 0)
+            {
+                throw new Exception();
+            }
+            var movieFromDB = await movieDataAccess.GetMovieAsync(movieUpdate.Id);
+            if (movieFromDB == null)
+            {
+                throw new Exception();
+            }
+            var uniqGenreIds = movieUpdate.GenreIds.Distinct().ToList();
+            if (uniqGenreIds.Count != movieUpdate.GenreIds.Count)
+            {
+                throw new Exception();
+            }
+            if (movieUpdate.GenreIds == null)
+            {
+                movieUpdate.GenreIds = new List<int>();
+            }
+            await SetMovieGenreAsync(movieUpdate.GenreIds, movieFromDB);
+            movieFromDB.Name = movieUpdate.Name;
+            movieFromDB.Description = movieUpdate.Description;
+            movieFromDB.Duration = movieUpdate.Duration;
+            movieFromDB.ModifiedOn = DateTime.Now;
+            await movieDataAccess.UpdateMovieAsync(movieFromDB);
+        }
+        private async Task SetMovieGenreAsync(List<int> genreIds, Movie movie)
+        {
+            var genres = await genreDataAccess.GetGenreListAsync(genreIds);
+            if (genres.Count != genreIds.Count)
+            {
+                throw new Exception();
+            }
+            var oldGenreIds = movie.Genres.Select(x => x.Id).ToList();
+            var newGenreIds = genreIds.Except(oldGenreIds).ToList();
+            var removeGenreIds = oldGenreIds.Except(genreIds).ToList();
+            var removeGenres = movie.Genres.Where(x => removeGenreIds.Contains(x.Id)).ToList();
+            var newGenres = genres.Where(x => newGenreIds.Contains(x.Id)).ToList();
+            foreach (var genre in removeGenres)
+            {
+                movie.Genres.Remove(genre);
+                genre.ModifiedOn = DateTime.Now;
+            }
+            foreach (var genre in newGenres)
+            {
+                movie.Genres.Add(genre);
+                genre.ModifiedOn = DateTime.UtcNow;
+            }
+        }
     }
 }

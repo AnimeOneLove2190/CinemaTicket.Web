@@ -10,5 +10,6 @@ namespace CinemaTicket.BusinessLogic.Interfaces
     public interface IMovieService
     {
         Task CreateAsync(MovieCreate movieCreate);
+        Task UpdateAsync(MovieUpdate movieUpdate);
     }
 }

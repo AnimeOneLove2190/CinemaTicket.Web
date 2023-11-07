@@ -12,6 +12,7 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task<Movie> GetMovieAsync(int id);
         Task<Movie> GetMovieAsync(string name);
         Task<List<Movie>> GetMovieListAsync();
+        Task<List<Movie>> GetMovieListAsync(List<int> movieIds);
         Task UpdateMovieAsync(Movie movie);
         Task DeleteMovieAsync(Movie movie);
     }

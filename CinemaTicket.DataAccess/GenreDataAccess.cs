@@ -30,13 +30,17 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Genres.Include(x => x.Movies).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Genre> GetGenreAsync(string name)
+        public async Task<Genre> GetGenreAsync(string name) // имеет право на существование, можно не переделывать
         {
             return await cinemaManagerContext.Genres.Include(x => x.Movies).FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
         }
         public async Task<List<Genre>> GetGenreListAsync()
         {
             return await cinemaManagerContext.Genres.Include(x => x.Movies).AsNoTracking().ToListAsync();
+        }
+        public async Task<List<Genre>> GetGenreListAsync(List<int> genreIds)
+        {
+            return await cinemaManagerContext.Genres.Include(x => x.Movies).Where(x => genreIds.Contains(x.Id)).ToListAsync();
         }
         public async Task UpdateGenreAsync(Genre genre)
         {

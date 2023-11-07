@@ -10,5 +10,6 @@ namespace CinemaTicket.BusinessLogic.Interfaces
     public interface IGenreService
     {
         Task CreateAsync(GenreCreate genreCreate);
+        Task UpdateAsync(GenreUpdate genreUpdate);
     }
 }
