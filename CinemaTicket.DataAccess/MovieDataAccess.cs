@@ -25,7 +25,7 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Movie> GetMovieAsync(string name)
+        public async Task<Movie> GetMovieAsync(string name) //хуйня, переделать
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
         }
@@ -33,15 +33,19 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).AsNoTracking().ToListAsync();
         }
+        public async Task<List<Movie>> GetMovieListAsync(List<int> movieIds) // Вдруг пригодится
+        {
+            return await cinemaManagerContext.Movies.Include(x => x.Genres).Where(x => movieIds.Contains(x.Id)).ToListAsync();
+        }
         public async Task UpdateMovieAsync(Movie movie)
         {
             movie.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(movie).State = EntityState.Modified; // Что это за команда?
+            cinemaManagerContext.Entry(movie).State = EntityState.Modified; // Помогает решить проблему, если сущность получена как AsNoTracking, аналогично для Deleted
             await cinemaManagerContext.SaveChangesAsync();
         }
         public async Task DeleteMovieAsync(Movie movie)
         {
-            cinemaManagerContext.Entry(movie).State = EntityState.Deleted; // Что это за команда?
+            cinemaManagerContext.Entry(movie).State = EntityState.Deleted; // Помогает решить проблему, если сущность получена как AsNoTracking, аналогично для Deleted
             cinemaManagerContext.Remove(movie);
             await cinemaManagerContext.SaveChangesAsync();
         }

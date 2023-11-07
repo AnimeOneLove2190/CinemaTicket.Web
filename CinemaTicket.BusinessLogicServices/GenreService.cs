@@ -41,5 +41,25 @@ namespace CinemaTicket.BusinessLogicServices
             };
             await genreDataAccess.CreateAsync(genre);
         }
+        public async Task UpdateAsync(GenreUpdate genreUpdate)
+        {
+            if (genreUpdate.Id <= 0)
+            {
+                throw new Exception();
+            }
+            if (string.IsNullOrEmpty(genreUpdate.Name) || string.IsNullOrWhiteSpace(genreUpdate.Name))
+            {
+                throw new Exception();
+            }
+            var genreFromDB = await genreDataAccess.GetGenreAsync(genreUpdate.Id);
+            if (genreFromDB == null)
+            {
+                throw new Exception();
+            }
+            genreFromDB.Name = genreUpdate.Name;
+            genreFromDB.Description = genreUpdate.Description;
+            genreFromDB.ModifiedOn = DateTime.Now;
+            await genreDataAccess.UpdateGenreAsync(genreFromDB);
+        }
     }
 }

@@ -24,5 +24,11 @@ namespace CinemaTicket.WebApi.Controllers
         {
             await movieService.CreateAsync(movieCreate);
         }
+        [HttpPost]
+        [Route("UpdateMovie")]
+        public async Task UpdateMovieAsync(MovieUpdate movieUpdate)
+        {
+            await movieService.UpdateAsync(movieUpdate);
+        }
     }
 }
