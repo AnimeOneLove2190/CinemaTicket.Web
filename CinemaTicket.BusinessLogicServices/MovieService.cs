@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Movies;
+using CinemaTicket.DataTransferObjects.Genres;
 using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices
@@ -131,6 +132,43 @@ namespace CinemaTicket.BusinessLogicServices
                 movie.Genres.Add(genre);
                 genre.ModifiedOn = DateTime.UtcNow;
             }
+        }
+        public async Task<MovieDetails> GetAsync(int id)
+        {
+            var movieFromDB = await movieDataAccess.GetMovieAsync(id);
+            if (movieFromDB == null)
+            {
+                throw new Exception();
+            }
+            return new MovieDetails
+            {
+                Id = movieFromDB.Id,
+                Name = movieFromDB.Name,
+                Description = movieFromDB.Description,
+                CreatedOn = movieFromDB.CreatedOn,
+                ModifiedOn = movieFromDB.ModifiedOn,
+                Genres = movieFromDB.Genres.Select(x => new GenreDetails
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    CreatedOn = x.CreatedOn,
+                    ModifiedOn = x.ModifiedOn,
+                }).ToList()
+            };
+        }
+        public async Task<List<MovieListElement>> GetListAsync()
+        {
+            var moviesFromDB = await movieDataAccess.GetMovieListAsync();
+            if (moviesFromDB == null || moviesFromDB.Count == 0)
+            {
+                throw new Exception();
+            }
+            return moviesFromDB.Select(x => new MovieListElement
+            {
+                Id = x.Id,
+                Name = x.Name,
+            }).ToList();
         }
     }
 }
