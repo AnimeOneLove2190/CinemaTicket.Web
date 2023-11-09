@@ -50,5 +50,11 @@ namespace CinemaTicket.DataAccess
             cinemaManagerContext.Remove(row);
             await cinemaManagerContext.SaveChangesAsync();
         }
+        public async Task DeleteRowListAsync(List<Row> rows)
+        {
+            cinemaManagerContext.Entry(rows).State = EntityState.Deleted;
+            cinemaManagerContext.RemoveRange(rows);
+            await cinemaManagerContext.SaveChangesAsync();
+        }
     }
 }

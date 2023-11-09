@@ -15,5 +15,6 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task<List<Row>> GetRowListAsync(List<int> rowIds);
         Task UpdateRowAsync(Row row);
         Task DeleteRowAsync(Row row);
+        Task DeleteRowListAsync(List<Row> rows);
     }
 }

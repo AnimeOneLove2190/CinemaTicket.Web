@@ -37,6 +37,12 @@ namespace CinemaTicket.WebApi
             services.AddScoped<IMovieDataAccess, MovieDataAccess>();
             services.AddScoped<IGenreService, GenreService>();
             services.AddScoped<IMovieService, MovieService>();
+            services.AddScoped<IHallDataAccess, HallDataAccess>();
+            services.AddScoped<IHallService, HallService>();
+            services.AddScoped<IRowDataAccess, RowDataAccess>();
+            services.AddScoped<IRowService, RowService>();
+            services.AddScoped<IPlaceDataAccess, PlaceDataAccess>();
+            services.AddScoped<IPlaceService, PlaceService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

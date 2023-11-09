@@ -11,6 +11,7 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task CreateAsync(Hall hall);
         Task CreateAsync(List<Hall> halls);
         Task<Hall> GetHallAsync(int id);
+        Task<Hall> GetHallAsync(string name);
         Task<List<Hall>> GetHallListAsync();
         Task<List<Hall>> GetHallListAsync(List<int> hallIds);
         Task UpdateHallAsync(Hall hall);

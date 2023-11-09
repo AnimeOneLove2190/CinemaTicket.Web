@@ -30,6 +30,10 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Halls.Include(x => x.Rows).Include(x => x.Sessions).FirstOrDefaultAsync(x => x.Id == id); // Пока неизвестно, работают ли два инклюда одновременно, сделать гет и проверить
         }
+        public async Task<Hall> GetHallAsync(string name)
+        {
+            return await cinemaManagerContext.Halls.Include(x => x.Rows).Include(x => x.Sessions).FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower()); // Тоже неизвестно
+        }
         public async Task<List<Hall>> GetHallListAsync()
         {
             return await cinemaManagerContext.Halls.Include(x => x.Rows).Include(x => x.Sessions).AsNoTracking().ToListAsync(); // Та же хуйня

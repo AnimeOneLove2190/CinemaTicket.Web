@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using CinemaTicket.Entities;
-using CinemaTicket.DataTransferObjects.Halls;
+using CinemaTicket.DataTransferObjects.Places;
 
 namespace CinemaTicket.BusinessLogic.Interfaces
 {
-    public interface IHallService
+    public interface IPlaceService
     {
-        Task CreateAsync(HallCreate hallCreate);
-        Task UpdateAsync(HallUpdate hallUpdate);
+        Task CreateAsync(PlaceCreate placeCreate);
     }
 }
