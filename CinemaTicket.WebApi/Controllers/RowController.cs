@@ -20,7 +20,7 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("AddRow")]
-        public async Task CreateMovieAsync(RowCreate rowCreate)
+        public async Task CreateRowAsync(RowCreate rowCreate)
         {
             await rowService.CreateAsync(rowCreate);
         }

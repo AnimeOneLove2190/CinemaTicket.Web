@@ -65,33 +65,39 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 throw new Exception();
             }
+            var soldPlacesInHall = new List<Place>();
             if (hallFromDB.Rows != null || hallFromDB.Rows.Count > 0)
             {
                 var rowsIds = hallFromDB.Rows.Select(x => x.Id).ToList();
-                var placesInHall = placeDataAccess.GetPlaceListAsync().Result.Where(x => rowsIds.Contains(x.RowId)).ToList();
+                var allPlaces = await placeDataAccess.GetPlaceListAsync();
+                var placesInHall = allPlaces.Where(x => rowsIds.Contains(x.RowId)).ToList();
                 for (int i = 0; i < placesInHall.Count; i++)
                 {
                     var soldTickets = placesInHall[i].Tickets.Where(x => x.IsSold == true).ToList();
                     if (soldTickets.Count > 0)
                     {
-                        throw new Exception();
+                        soldPlacesInHall.Add(placesInHall[i]);
                     }
                 }
             }
+            var dontTouchRowsIds = soldPlacesInHall.Select(x => x.RowId).ToList();
+            dontTouchRowsIds = dontTouchRowsIds.Distinct().ToList();
             hallUpdate.RowsNumbers = hallUpdate.RowsNumbers.Distinct().ToList();
             if (hallUpdate.RowsNumbers == null)
             {
                 hallUpdate.RowsNumbers = new List<int>();
             }
+            var dontTouchRowsNumbers = hallFromDB.Rows.Where(x => dontTouchRowsIds.Contains(x.Id)).Select(x => x.Number).ToList();
             var rowsNumbersFromDB = hallFromDB.Rows.Select(x => x.Number).ToList();
             var removeRowsNumbers = rowsNumbersFromDB.Except(hallUpdate.RowsNumbers).ToList();
+            removeRowsNumbers = removeRowsNumbers.Except(dontTouchRowsNumbers).ToList();
             var createRowsNumbers = hallUpdate.RowsNumbers.Except(rowsNumbersFromDB).ToList();
             if (removeRowsNumbers != null && removeRowsNumbers.Count > 0)
             {
                 var removeRows = hallFromDB.Rows.Where(x => removeRowsNumbers.Contains(x.Number)).ToList();
                 await rowDataAccess.DeleteRowListAsync(removeRows);
             }
-            if (createRowsNumbers != null && removeRowsNumbers.Count > 0)
+            if (createRowsNumbers != null && createRowsNumbers.Count > 0)
             {
                 var createRows = new List<Row>();
                 for (int i = 0; i < createRowsNumbers.Count; i++)

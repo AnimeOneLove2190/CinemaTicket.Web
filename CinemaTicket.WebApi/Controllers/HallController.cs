@@ -20,13 +20,13 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("AddHall")]
-        public async Task CreateMovieAsync(HallCreate hallCreate)
+        public async Task CreateHallAsync(HallCreate hallCreate)
         {
             await hallService.CreateAsync(hallCreate);
         }
         [HttpPost]
         [Route("UpdateHall")]
-        public async Task UpdateMovieAsync(HallUpdate movieUpdate)
+        public async Task UpdateHallAsync(HallUpdate movieUpdate)
         {
             await hallService.UpdateAsync(movieUpdate);
         }

@@ -52,7 +52,10 @@ namespace CinemaTicket.DataAccess
         }
         public async Task DeleteRowListAsync(List<Row> rows)
         {
-            cinemaManagerContext.Entry(rows).State = EntityState.Deleted;
+            foreach (var row in rows)
+            {
+                cinemaManagerContext.Entry(row).State = EntityState.Deleted;
+            }
             cinemaManagerContext.RemoveRange(rows);
             await cinemaManagerContext.SaveChangesAsync();
         }

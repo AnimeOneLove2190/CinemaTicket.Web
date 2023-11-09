@@ -20,7 +20,7 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("AddPlace")]
-        public async Task CreateMovieAsync(PlaceCreate placeCreate)
+        public async Task CreatePlaceAsync(PlaceCreate placeCreate)
         {
             await placeService.CreateAsync(placeCreate);
         }
