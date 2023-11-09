@@ -30,6 +30,10 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 throw new Exception();
             }
+            if (rowCreate.Number <= 0)
+            {
+                throw new Exception();
+            }
             var hallFromDB = await hallDataAccess.GetHallAsync(rowCreate.HallId);
             if (hallFromDB == null)
             {
@@ -82,10 +86,22 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 throw new Exception();
             }
+            if (rowUpdate.Number <= 0)
+            {
+                throw new Exception();
+            }
             var hallFromDB = await hallDataAccess.GetHallAsync(rowUpdate.HallId);
             if (hallFromDB == null)
             {
                 throw new Exception();
+            }
+            var rowWithTheSameNumber = hallFromDB.Rows.FirstOrDefault(x => x.Number == rowUpdate.Number);
+            if (rowWithTheSameNumber != null)
+            {
+                if (rowWithTheSameNumber.Id != rowUpdate.Id)
+                {
+                    throw new Exception();
+                }
             }
             var rowFromDB = await rowDataAccess.GetRowAsync(rowUpdate.Id);
             if (rowFromDB == null)

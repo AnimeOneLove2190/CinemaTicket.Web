@@ -56,7 +56,7 @@ namespace CinemaTicket.DataAccess
             {
                 cinemaManagerContext.Entry(place).State = EntityState.Deleted;
             }
-            cinemaManagerContext.Remove(places);
+            cinemaManagerContext.RemoveRange(places);
             await cinemaManagerContext.SaveChangesAsync();
         }
     }
