@@ -68,5 +68,80 @@ namespace CinemaTicket.BusinessLogicServices
                 await placeDataAccess.CreateAsync(places);
             }
         }
+        public async Task UpdateAsync(RowUpdate rowUpdate)
+        {
+            if (rowUpdate == null)
+            {
+                throw new Exception();
+            }
+            if (rowUpdate.Id <= 0)
+            {
+                throw new Exception();
+            }
+            if (rowUpdate.HallId <= 0)
+            {
+                throw new Exception();
+            }
+            var hallFromDB = await hallDataAccess.GetHallAsync(rowUpdate.HallId);
+            if (hallFromDB == null)
+            {
+                throw new Exception();
+            }
+            var rowFromDB = await rowDataAccess.GetRowAsync(rowUpdate.Id);
+            if (rowFromDB == null)
+            {
+                throw new Exception();
+            }
+            var soldPlacesInRow = new List<Place>();
+            if (rowFromDB.Places != null && rowFromDB.Places.Count > 0)
+            {
+                var placesInRow = await placeDataAccess.GetPlaceListAsync();
+                placesInRow = placesInRow.Where(x => x.RowId == rowFromDB.Id).ToList();
+                for (int i = 0; i < placesInRow.Count; i++)
+                {
+                    var soldTickets = new List<Ticket>();
+                    soldTickets = placesInRow[i].Tickets.Where(x => x.IsSold == true).ToList();
+                    if (soldTickets.Count > 0)
+                    {
+                        soldPlacesInRow.Add(placesInRow[i]);
+                    }
+                }
+            }
+            rowUpdate.PlacesNumbers = rowUpdate.PlacesNumbers.Distinct().ToList();
+            if (rowUpdate.PlacesNumbers == null)
+            {
+                rowUpdate.PlacesNumbers = new List<int>();
+            }
+            var dontTouchPlaceNumbers = soldPlacesInRow.Select(x => x.Number).ToList();
+            var placesNumbersFromDB = rowFromDB.Places.Select(x => x.Number).ToList();
+            var removePlacesNumbers = placesNumbersFromDB.Except(rowUpdate.PlacesNumbers).ToList();
+            removePlacesNumbers = removePlacesNumbers.Except(dontTouchPlaceNumbers).ToList();
+            var createPlaceNumbers = rowUpdate.PlacesNumbers.Except(placesNumbersFromDB).ToList();
+            if (removePlacesNumbers != null && removePlacesNumbers.Count > 0)
+            {
+                var removePlaces = rowFromDB.Places.Where(x => removePlacesNumbers.Contains(x.Number)).ToList();
+                await placeDataAccess.DeletePlaceListAsync(removePlaces);
+            }
+            if (createPlaceNumbers != null && createPlaceNumbers.Count > 0)
+            {
+                var createPlaces = new List<Place>();
+                for (int i = 0; i < createPlaceNumbers.Count; i++)
+                {
+                    createPlaces.Add(new Place
+                    {
+                        Number = createPlaceNumbers[i],
+                        Capacity = 1,
+                        CreatedOn = DateTime.UtcNow,
+                        ModifiedOn = DateTime.UtcNow,
+                        RowId = rowFromDB.Id,
+                    });
+                }
+                await placeDataAccess.CreateAsync(createPlaces);
+            }
+            rowFromDB.Number = rowUpdate.Number;
+            rowFromDB.ModifiedOn = DateTime.UtcNow;
+            rowFromDB.HallId = rowUpdate.HallId;
+            await rowDataAccess.UpdateRowAsync(rowFromDB);
+        }
     }
 }

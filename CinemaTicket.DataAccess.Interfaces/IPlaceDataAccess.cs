@@ -15,5 +15,6 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task<List<Place>> GetPlaceListAsync(List<int> placesIds);
         Task UpdatePlaceAsync(Place place);
         Task DeletePlaceAsync(Place place);
+        Task DeletePlaceListAsync(List<Place> places);
     }
 }

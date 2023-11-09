@@ -10,5 +10,6 @@ namespace CinemaTicket.BusinessLogic.Interfaces
     public interface IRowService
     {
         Task CreateAsync(RowCreate rowCreate);
+        Task UpdateAsync(RowUpdate rowUpdate);
     }
 }
