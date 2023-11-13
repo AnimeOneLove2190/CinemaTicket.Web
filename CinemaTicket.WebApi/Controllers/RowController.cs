@@ -30,5 +30,23 @@ namespace CinemaTicket.WebApi.Controllers
         {
             await rowService.UpdateAsync(rowUpdate);
         }
+        [HttpGet]
+        [Route("GetRow")]
+        public async Task<RowDetails> GetRowAsync(int id)
+        {
+            return await rowService.GetAsync(id);
+        }
+        [HttpGet]
+        [Route("GetRowList")]
+        public async Task<List<RowListElement>> GetRowListAsync()
+        {
+            return await rowService.GetListAsync();
+        }
+        [HttpPost]
+        [Route("DeleteRow")]
+        public async Task DeleteRowAsync(int id)
+        {
+            await rowService.DeleteAsync(id);
+        }
     }
 }

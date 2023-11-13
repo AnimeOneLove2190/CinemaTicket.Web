@@ -61,5 +61,14 @@ namespace CinemaTicket.BusinessLogicServices
             genreFromDB.ModifiedOn = DateTime.Now;
             await genreDataAccess.UpdateGenreAsync(genreFromDB);
         }
+        public async Task DeleteAsync(int id)
+        {
+            var genreFromDB = await genreDataAccess.GetGenreAsync(id);
+            if (genreFromDB == null)
+            {
+                throw new Exception();
+            }
+            await genreDataAccess.DeleteGenreAsync(genreFromDB);
+        }
     }
 }

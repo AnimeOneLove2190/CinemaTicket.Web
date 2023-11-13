@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Rows;
+using CinemaTicket.DataTransferObjects.Places;
 using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices
@@ -158,6 +159,69 @@ namespace CinemaTicket.BusinessLogicServices
             rowFromDB.ModifiedOn = DateTime.UtcNow;
             rowFromDB.HallId = rowUpdate.HallId;
             await rowDataAccess.UpdateRowAsync(rowFromDB);
+        }
+        public async Task<RowDetails> GetAsync(int id)
+        {
+            var rowFromDB = await rowDataAccess.GetRowAsync(id);
+            if (rowFromDB == null)
+            {
+                throw new Exception();
+            }
+            return new RowDetails
+            {
+                Id = rowFromDB.Id,
+                Number = rowFromDB.Number,
+                CreatedOn = rowFromDB.CreatedOn,
+                ModifiedOn = rowFromDB.ModifiedOn,
+                HallId = rowFromDB.HallId,
+                Places = rowFromDB.Places.Select(x => new PlaceDetails
+                {
+                    Id = x.Id,
+                    Capacity = x.Capacity,
+                    Number = x.Number,
+                    CreatedOn = x.CreatedOn,
+                    ModifiedOn = x.ModifiedOn,
+                    RowId = x.RowId,
+                }).ToList()
+            };
+        }
+        public async Task<List<RowListElement>> GetListAsync()
+        {
+            var rowsFromDB = await rowDataAccess.GetRowListAsync();
+            if (rowsFromDB == null || rowsFromDB.Count == 0)
+            {
+                throw new Exception();
+            }
+            return rowsFromDB.Select(x => new RowListElement
+            {
+                Id = x.Id,
+                Number = x.Number,
+                HallId = x.HallId,
+            }).ToList();
+        }
+        public async Task DeleteAsync(int id)
+        {
+            var rowFromDB = await rowDataAccess.GetRowAsync(id);
+            if (rowFromDB == null)
+            {
+                throw new Exception();
+            }
+            var soldPlacesInRow = new List<Place>();
+            if (rowFromDB.Places != null && rowFromDB.Places.Count > 0)
+            {
+                var placesInRow = await placeDataAccess.GetPlaceListAsync();
+                placesInRow = placesInRow.Where(x => x.RowId == rowFromDB.Id).ToList();
+                for (int i = 0; i < placesInRow.Count; i++)
+                {
+                    var soldTickets = new List<Ticket>();
+                    soldTickets = placesInRow[i].Tickets.Where(x => x.IsSold == true).ToList();
+                    if (soldTickets.Count > 0)
+                    {
+                        throw new Exception();
+                    }
+                }
+            }
+            await rowDataAccess.DeleteRowAsync(rowFromDB);
         }
     }
 }

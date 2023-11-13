@@ -11,5 +11,8 @@ namespace CinemaTicket.BusinessLogic.Interfaces
     {
         Task CreateAsync(HallCreate hallCreate);
         Task UpdateAsync(HallUpdate hallUpdate);
+        Task<HallDetails> GetAsync(int id);
+        Task<List<HallListElement>> GetListAsync();
+        Task DeleteAsync(int id);
     }
 }

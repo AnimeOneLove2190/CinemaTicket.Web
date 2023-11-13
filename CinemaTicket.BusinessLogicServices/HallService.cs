@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Halls;
+using CinemaTicket.DataTransferObjects.Rows;
 using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices
@@ -115,6 +116,66 @@ namespace CinemaTicket.BusinessLogicServices
             hallFromDB.Name = hallUpdate.Name;
             hallFromDB.ModifiedOn = DateTime.UtcNow;
             await hallDataAccess.UpdateHallAsync(hallFromDB);
+        }
+        public async Task<HallDetails> GetAsync(int id)
+        {
+            var hallFromDB = await hallDataAccess.GetHallAsync(id);
+            if (hallFromDB == null)
+            {
+                throw new Exception();
+            }
+            return new HallDetails
+            {
+                Id = hallFromDB.Id,
+                Name = hallFromDB.Name,
+                CreatedOn = hallFromDB.CreatedOn,
+                ModifiedOn = hallFromDB.ModifiedOn,
+                Rows = hallFromDB.Rows.Select(x => new RowDetails
+                {
+                    Id = x.Id,
+                    Number = x.Number,
+                    CreatedOn = x.CreatedOn,
+                    ModifiedOn = x.ModifiedOn,
+                    HallId = x.HallId,
+                }).ToList()
+            };
+        }
+        public async Task<List<HallListElement>> GetListAsync()
+        {
+            var hallsFromDB = await hallDataAccess.GetHallListAsync();
+            if (hallsFromDB == null || hallsFromDB.Count == 0)
+            {
+                throw new Exception();
+            }
+            return hallsFromDB.Select(x => new HallListElement
+            {
+                Id = x.Id,
+                Name = x.Name
+            }).ToList();
+        }
+        public async Task DeleteAsync(int id)
+        {
+            var hallFromDB = await hallDataAccess.GetHallAsync(id);
+            if (hallFromDB == null)
+            {
+                throw new Exception();
+            }
+            var soldPlacesInHall = new List<Place>();
+            if (hallFromDB.Rows != null || hallFromDB.Rows.Count > 0)
+            {
+                var rowsIds = hallFromDB.Rows.Select(x => x.Id).ToList();
+                var allPlaces = await placeDataAccess.GetPlaceListAsync();
+                var placesInHall = allPlaces.Where(x => rowsIds.Contains(x.RowId)).ToList();
+                for (int i = 0; i < placesInHall.Count; i++)
+                {
+                    var soldTickets = placesInHall[i].Tickets.Where(x => x.IsSold == true).ToList();
+                    if (soldTickets.Count > 0)
+                    {
+                        throw new Exception();
+                    }
+                }
+            }
+            await hallDataAccess.DeleteHallAsync(hallFromDB);
         }
     }
 }

@@ -20,15 +20,21 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("AddGenre")]
-        public async Task CreateMovieAsync(GenreCreate genreCreate)
+        public async Task CreateGenreAsync(GenreCreate genreCreate)
         {
             await genreService.CreateAsync(genreCreate);
         }
         [HttpPost]
         [Route("UpdateGenre")]
-        public async Task UpdateMovieAsync(GenreUpdate genreUpdate)
+        public async Task UpdateGenreAsync(GenreUpdate genreUpdate)
         {
             await genreService.UpdateAsync(genreUpdate);
+        }
+        [HttpPost]
+        [Route("DeleteGenre")]
+        public async Task DeleteGenreAsync(int id)
+        {
+            await genreService.DeleteAsync(id);
         }
     }
 }

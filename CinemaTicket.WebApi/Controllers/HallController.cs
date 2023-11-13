@@ -30,5 +30,23 @@ namespace CinemaTicket.WebApi.Controllers
         {
             await hallService.UpdateAsync(movieUpdate);
         }
+        [HttpGet]
+        [Route("GetHall")]
+        public async Task<HallDetails> GetHallAsync(int id)
+        {
+            return await hallService.GetAsync(id);
+        }
+        [HttpGet]
+        [Route("GetHallList")]
+        public async Task<List<HallListElement>> GetHallListAsync()
+        {
+            return await hallService.GetListAsync();
+        }
+        [HttpPost]
+        [Route("DeleteHall")]
+        public async Task DeleteHallAsync(int id)
+        {
+            await hallService.DeleteAsync(id);
+        }
     }
 }

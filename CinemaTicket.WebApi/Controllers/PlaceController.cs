@@ -24,5 +24,23 @@ namespace CinemaTicket.WebApi.Controllers
         {
             await placeService.CreateAsync(placeCreate);
         }
+        [HttpGet]
+        [Route("GetPlace")]
+        public async Task<PlaceDetails> GetPlaceAsync(int id)
+        {
+            return await placeService.GetAsync(id);
+        }
+        [HttpGet]
+        [Route("GetPlaceList")]
+        public async Task<List<PlaceListElement>> GetPlaceListAsync()
+        {
+            return await placeService.GetListAsync();
+        }
+        [HttpPost]
+        [Route("DeletePlace")]
+        public async Task DeletePlaceAsync(int id)
+        {
+            await placeService.DeleteAsync(id);
+        }
     }
 }
