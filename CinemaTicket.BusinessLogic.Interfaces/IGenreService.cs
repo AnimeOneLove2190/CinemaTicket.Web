@@ -13,5 +13,6 @@ namespace CinemaTicket.BusinessLogic.Interfaces
         Task UpdateAsync(GenreUpdate genreUpdate);
         Task<GenreDetails> GetAsync(int id);
         Task<List<GenreListElement>> GetListAsync();
+        Task DeleteAsync(int id);
     }
 }

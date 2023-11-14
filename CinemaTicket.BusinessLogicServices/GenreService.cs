@@ -90,5 +90,14 @@ namespace CinemaTicket.BusinessLogicServices
                 Name = x.Name
             }).ToList();
         }
+        public async Task DeleteAsync(int id)
+        {
+            var genreFromDB = await genreDataAccess.GetGenreAsync(id);
+            if (genreFromDB == null)
+            {
+                throw new Exception();
+            }
+            await genreDataAccess.DeleteGenreAsync(genreFromDB);
+        }
     }
 }
