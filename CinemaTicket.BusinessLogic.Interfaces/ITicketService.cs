@@ -11,5 +11,8 @@ namespace CinemaTicket.BusinessLogic.Interfaces
     {
         Task CreateAsync(TicketCreate ticketCreate);
         Task UpdateAsync(TicketUpdate ticketUpdate);
+        Task<TicketDetails> GetAsync(int id);
+        Task<List<TicketListElement>> GetListAsync();
+        Task DeleteAsync(int id);
     }
 }

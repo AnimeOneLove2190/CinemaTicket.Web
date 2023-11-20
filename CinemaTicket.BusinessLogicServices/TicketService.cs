@@ -110,5 +110,53 @@ namespace CinemaTicket.BusinessLogicServices
             ticketFromDB.SessionId = ticketUpdate.SessionId;
             await ticketDataAccess.UpdateTicketAsync(ticketFromDB);
         }
+        public async Task<TicketDetails> GetAsync(int id)
+        {
+            var ticketFromDB = await ticketDataAccess.GetTicketAsync(id);
+            if (ticketFromDB == null)
+            {
+                throw new Exception();
+            }
+            return new TicketDetails
+            {
+                Id = ticketFromDB.Id,
+                IsSold = ticketFromDB.IsSold, 
+                DateOfSale = ticketFromDB.DateOfSale,
+                Price = ticketFromDB.Price,
+                CreatedOn = ticketFromDB.CreatedOn,
+                ModifiedOn = ticketFromDB.ModifiedOn, 
+                PlaceId = ticketFromDB.PlaceId,
+                SessionId = ticketFromDB.SessionId
+            };
+        }
+        public async Task<List<TicketListElement>> GetListAsync()
+        {
+            var ticketFromDB = await ticketDataAccess.GetTicketListAsync();
+            if (ticketFromDB == null || ticketFromDB.Count == 0)
+            {
+                throw new Exception();
+            }
+            return ticketFromDB.Select(x => new TicketListElement
+            {
+                Id = x.Id,
+                IsSold = x.IsSold,
+                DateOfSale = x.DateOfSale, 
+                PlaceId = x.PlaceId,
+                SessionId = x.SessionId
+            }).ToList();
+        }
+        public async Task DeleteAsync(int id)
+        {
+            var ticketFromDB = await ticketDataAccess.GetTicketAsync(id);
+            if (ticketFromDB == null)
+            {
+                throw new Exception();
+            }
+            if (ticketFromDB.IsSold == true)
+            {
+                throw new Exception();
+            }
+            await ticketDataAccess.DeleteTicketAsync(ticketFromDB);
+        }
     }
 }
