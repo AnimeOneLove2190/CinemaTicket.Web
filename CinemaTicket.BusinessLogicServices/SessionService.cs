@@ -42,12 +42,12 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new Exception();
             }
             var sessionWithTheSameStart = await sessionDataAccess.GetSessionAsync(sessionCreate.Start);
-            if (sessionWithTheSameStart != null)
+            if (sessionWithTheSameStart != null && sessionWithTheSameStart.HallId == sessionCreate.HallId)
             {
                 throw new Exception();
             }
             var hallFromDB = await hallDataAccess.GetHallAsync(sessionCreate.HallId);
-            if (hallFromDB == null || hallFromDB.Rows == null || hallFromDB.Rows.Count <= 0)
+            if (hallFromDB == null || hallFromDB.Rows == null)
             {
                 throw new Exception();
             }
@@ -56,10 +56,17 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 throw new Exception();
             }
-            var rowsIds = hallFromDB.Rows.Select(x => x.Id).ToList();
-            var allPlaces = await placeDataAccess.GetPlaceListAsync();
-            var placesInHall = allPlaces.Where(x => rowsIds.Contains(x.RowId)).ToList();
-            if (placesInHall == null || placesInHall.Count <= 0)
+            var rowsInHall = hallFromDB.Rows.ToList();
+            var placesInHall = new List<Place>();
+            for (int i = 0; i < rowsInHall.Count; i++) //TODO Проверить, как сваггер появится
+            {
+                var placesInRow = rowsInHall[i].Places.ToList();
+                for (int j = 0; j < placesInRow.Count; j++)
+                {
+                    placesInHall.Add(placesInRow[j]);
+                }
+            }
+            if (placesInHall == null)
             {
                 throw new Exception();
             }
