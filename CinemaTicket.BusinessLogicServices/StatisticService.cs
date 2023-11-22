@@ -184,5 +184,38 @@ namespace CinemaTicket.BusinessLogicServices
             }
             return ticketStatisticList;
         }
+        public async Task SellTickets(List<int> ticketsIds)
+        {
+            var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
+            if (ticketsFromDB == null)
+            {
+                throw new Exception();
+            }
+            var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
+            if (unsoldTickets == null)
+            {
+                throw new Exception();
+            }
+            var ticketsToUpdate = unsoldTickets;
+            for (int i = 0; i < ticketsToUpdate.Count; i++)
+            {
+                ticketsToUpdate[i].IsSold = true;
+            }
+            await ticketDataAccess.UpdateTicketListAsync(ticketsToUpdate);
+        }
+        public async Task DeleteTickets(List<int> ticketsIds)
+        {
+            var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
+            if (ticketsFromDB == null)
+            {
+                throw new Exception();
+            }
+            var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
+            if (unsoldTickets == null)
+            {
+                throw new Exception();
+            }
+            await ticketDataAccess.DeleteTicketListAsync(unsoldTickets);
+        }
     }
 }
