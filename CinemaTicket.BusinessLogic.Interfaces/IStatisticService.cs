@@ -12,5 +12,7 @@ namespace CinemaTicket.BusinessLogic.Interfaces
     {
         Task<List<Statictic>> GetStaticticList(Nullable<DateTime> start, Nullable<DateTime> end);
         Task<List<TicketStatistic>> GetTicketStaticticList(int sessionId, Nullable<bool> isSold);
+        Task DeleteTickets(List<int> ticketsIds);
+        Task SellTickets(List<int> ticketsIds);
     }
 }
