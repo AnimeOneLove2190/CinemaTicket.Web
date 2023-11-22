@@ -6,11 +6,12 @@ using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Sessions;
 using CinemaTicket.DataTransferObjects.Tickets;
+using CinemaTicket.DataTransferObjects.Statistic;
 using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices
 {
-    public class StatisticService
+    public class StatisticService : IStatisticService
     {
         private readonly ISessionDataAccess sessionDataAccess;
         private readonly IHallDataAccess hallDataAccess;
@@ -90,6 +91,98 @@ namespace CinemaTicket.BusinessLogicServices
                 });
             }
             return statisticList;
+        }
+        public async Task<List<TicketStatistic>> GetTicketStaticticList(int sessionId, Nullable<bool> isSold)
+        {
+            var sessionFromDB = await sessionDataAccess.GetSessionAsync(sessionId);
+            if (sessionFromDB == null)
+            {
+                throw new Exception();
+            }
+            var hallFromDB = await hallDataAccess.GetHallAsync(sessionFromDB.HallId);
+            if (hallFromDB == null || hallFromDB.Rows == null)
+            {
+                throw new Exception();
+            }
+            var rowsInHall = hallFromDB.Rows.ToList();
+            var placesInHall = new List<Place>();
+            for (int i = 0; i < rowsInHall.Count; i++) //TODO Проверить, как сваггер появится
+            {
+                var placesInRow = rowsInHall[i].Places.ToList();
+                for (int j = 0; j < placesInRow.Count; j++)
+                {
+                    placesInHall.Add(placesInRow[j]);
+                }
+            }
+            var movieFromDB = await movieDataAccess.GetMovieAsync(sessionFromDB.MovieId);
+            if (movieFromDB == null)
+            {
+                throw new Exception();
+            }
+            var ticketStatisticList = new List<TicketStatistic>();
+            if (isSold != null)
+            {
+                var soldTickets = sessionFromDB.Tickets.Where(x => x.IsSold == true).ToList();
+                if (soldTickets == null)
+                {
+                    throw new Exception();
+                }
+                for (int i = 0; i < soldTickets.Count; i++)
+                {
+                    var placeOnTheTicket = placesInHall.FirstOrDefault(x => x.Id == soldTickets[i].PlaceId);
+                    if (placeOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == placeOnTheTicket.RowId);
+                    if (rowOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    ticketStatisticList.Add(new TicketStatistic
+                    {
+                        Id = soldTickets[i].Id,
+                        MovieName = movieFromDB.Name,
+                        PlaceNumber = placeOnTheTicket.Number,
+                        RowNumber = rowOnTheTicket.Number,
+                        HallId = hallFromDB.Id,
+                        IsSold = soldTickets[i].IsSold, //Хули нет когда да
+                        Price = soldTickets[i].Price,
+                    });
+                }
+            }
+            else
+            {
+                var allTickets = sessionFromDB.Tickets.ToList();
+                if (allTickets == null)
+                {
+                    throw new Exception();
+                }
+                for (int i = 0; i < allTickets.Count; i++)
+                {
+                    var placeOnTheTicket = placesInHall.FirstOrDefault(x => x.Id == allTickets[i].PlaceId);
+                    if (placeOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == placeOnTheTicket.RowId);
+                    if (rowOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    ticketStatisticList.Add(new TicketStatistic
+                    {
+                        Id = allTickets[i].Id,
+                        MovieName = movieFromDB.Name,
+                        PlaceNumber = placeOnTheTicket.Number,
+                        RowNumber = rowOnTheTicket.Number,
+                        HallId = hallFromDB.Id,
+                        IsSold = allTickets[i].IsSold,
+                        Price = allTickets[i].Price,
+                    });
+                }
+            }
+            return ticketStatisticList;
         }
     }
 }
