@@ -36,12 +36,22 @@ namespace CinemaTicket.DataAccess
         }
         public async Task<List<Ticket>> GetTicketListAsync(List<int> ticketsIds)
         {
-            return await cinemaManagerContext.Tickets.Where(x => ticketsIds.Contains(x.Id)).ToListAsync();
+            return await cinemaManagerContext.Tickets.Where(x => ticketsIds.Contains(x.Id)).AsNoTracking().ToListAsync();
         }
         public async Task UpdateTicketAsync(Ticket ticket)
         {
             ticket.ModifiedOn = DateTime.Now;
             cinemaManagerContext.Entry(ticket).State = EntityState.Modified;
+            await cinemaManagerContext.SaveChangesAsync();
+        }
+        public async Task UpdateTicketListAsync(List<Ticket> tickets) //TODO Проверить сваггером
+        {
+            foreach (var ticket in tickets)
+            {
+                ticket.ModifiedOn = DateTime.UtcNow;
+                cinemaManagerContext.Entry(ticket).State = EntityState.Modified;
+            }
+            cinemaManagerContext.UpdateRange(tickets);
             await cinemaManagerContext.SaveChangesAsync();
         }
         public async Task DeleteTicketAsync(Ticket ticket)

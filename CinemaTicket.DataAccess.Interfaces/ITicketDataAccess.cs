@@ -14,6 +14,7 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task<List<Ticket>> GetTicketListAsync();
         Task<List<Ticket>> GetTicketListAsync(List<int> ticketsIds);
         Task UpdateTicketAsync(Ticket ticket);
+        Task UpdateTicketListAsync(List<Ticket> tickets);
         Task DeleteTicketAsync(Ticket ticket);
         Task DeleteTicketListAsync(List<Ticket> tickets);
     }
