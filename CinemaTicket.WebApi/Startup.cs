@@ -48,6 +48,7 @@ namespace CinemaTicket.WebApi
             services.AddScoped<ITicketDataAccess, TicketDataAccess>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<IStatisticService, StatisticService>();
+            services.AddSwaggerGen();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,6 +57,16 @@ namespace CinemaTicket.WebApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            if (!env.IsProduction())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(
+                    c =>
+                    {
+                        c.SwaggerEndpoint("/swagger/v1/swagger.json", "CinemaTicket API V1");
+                        c.RoutePrefix = string.Empty;
+                    });
             }
 
             app.UseHttpsRedirection();
