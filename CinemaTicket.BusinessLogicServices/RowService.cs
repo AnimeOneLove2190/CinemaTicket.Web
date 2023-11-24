@@ -18,9 +18,9 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IHallDataAccess hallDataAccess;
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
-        private readonly ILogger<HallService> logger;
+        private readonly ILogger<RowService> logger;
 
-        public RowService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<HallService> logger)
+        public RowService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<RowService> logger)
         {
             this.hallDataAccess = hallDataAccess;
             this.rowDataAccess = rowDataAccess;
@@ -220,7 +220,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<List<RowListElement>> GetListAsync()
         {
             var rowsFromDB = await rowDataAccess.GetRowListAsync();
-            if (rowsFromDB == null || rowsFromDB.Count == 0)
+            if (rowsFromDB == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Row));
                 logger.LogError(exceptionMessage);

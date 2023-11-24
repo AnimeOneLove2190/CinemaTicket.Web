@@ -17,8 +17,8 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IMovieDataAccess movieDataAccess;
         private readonly IGenreDataAccess genreDataAccess;
-        private readonly ILogger<HallService> logger;
-        public MovieService(IMovieDataAccess movieDataAccess, IGenreDataAccess genreDataAccess, ILogger<HallService> logger)
+        private readonly ILogger<MovieService> logger;
+        public MovieService(IMovieDataAccess movieDataAccess, IGenreDataAccess genreDataAccess, ILogger<MovieService> logger)
         {
             this.movieDataAccess = movieDataAccess;
             this.genreDataAccess = genreDataAccess;

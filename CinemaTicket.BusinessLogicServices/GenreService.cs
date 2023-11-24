@@ -16,8 +16,8 @@ namespace CinemaTicket.BusinessLogicServices
     public class GenreService : IGenreService
     {
         private readonly IGenreDataAccess genreDataAccess;
-        private readonly ILogger<HallService> logger;
-        public GenreService(IGenreDataAccess genreDataAccess, ILogger<HallService> logger)
+        private readonly ILogger<GenreService> logger;
+        public GenreService(IGenreDataAccess genreDataAccess, ILogger<GenreService> logger)
         {
             this.genreDataAccess = genreDataAccess;
             this.logger = logger;
@@ -99,7 +99,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<List<GenreListElement>> GetListAsync()
         {
             var genresFromDB = await genreDataAccess.GetGenreListAsync();
-            if (genresFromDB == null || genresFromDB.Count == 0)
+            if (genresFromDB == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Genre));
                 logger.LogError(exceptionMessage);

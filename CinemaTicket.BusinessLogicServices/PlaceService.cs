@@ -17,8 +17,8 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
-        private readonly ILogger<HallService> logger;
-        public PlaceService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<HallService> logger)
+        private readonly ILogger<PlaceService> logger;
+        public PlaceService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<PlaceService> logger)
         {
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
@@ -179,7 +179,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<List<PlaceListElement>> GetListAsync()
         {
             var placesFromDB = await placeDataAccess.GetPlaceListAsync();
-            if (placesFromDB == null || placesFromDB.Count == 0)
+            if (placesFromDB == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Place));
                 logger.LogError(exceptionMessage);
