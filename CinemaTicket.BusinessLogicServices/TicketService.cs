@@ -170,89 +170,58 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new Exception();
             }
             var hallFromDB = await hallDataAccess.GetHallAsync(sessionFromDB.HallId);
-            if (hallFromDB == null || hallFromDB.Rows == null)
+            if (hallFromDB == null)
             {
                 throw new Exception();
             }
             var rowsInHall = hallFromDB.Rows.ToList();
-            var placesInHall = new List<Place>();
-            for (int i = 0; i < rowsInHall.Count; i++) //TODO Проверить, как сваггер появится
-            {
-                var placesInRow = rowsInHall[i].Places.ToList();
-                for (int j = 0; j < placesInRow.Count; j++)
-                {
-                    placesInHall.Add(placesInRow[j]);
-                }
-            }
-            var movieFromDB = await movieDataAccess.GetMovieAsync(sessionFromDB.MovieId);
-            if (movieFromDB == null)
-            {
-                throw new Exception();
-            }
-            var ticketStatisticList = new List<TicketView>();
+            var placesInHall = rowsInHall.SelectMany(x => x.Places).ToList();
+            var ticketViewList = new List<TicketView>();
             if (isSold != null)
             {
-                var soldTickets = sessionFromDB.Tickets.Where(x => x.IsSold == true).ToList();
-                if (soldTickets == null)
+                var filteredTickets = sessionFromDB.Tickets.Where(x => x.IsSold == isSold.Value).ToList();
+                foreach (var ticket in filteredTickets)
                 {
-                    throw new Exception();
-                }
-                for (int i = 0; i < soldTickets.Count; i++)
-                {
-                    var placeOnTheTicket = placesInHall.FirstOrDefault(x => x.Id == soldTickets[i].PlaceId);
-                    if (placeOnTheTicket == null)
-                    {
-                        throw new Exception();
-                    }
-                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == placeOnTheTicket.RowId);
+                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == ticket.Place.RowId);
                     if (rowOnTheTicket == null)
                     {
                         throw new Exception();
                     }
-                    ticketStatisticList.Add(new TicketView
+                    ticketViewList.Add(new TicketView
                     {
-                        Id = soldTickets[i].Id,
-                        MovieName = movieFromDB.Name,
-                        PlaceNumber = placeOnTheTicket.Number,
+                        Id = ticket.Id,
+                        MovieName = sessionFromDB.Movie.Name,
+                        PlaceNumber = ticket.Place.Number,
                         RowNumber = rowOnTheTicket.Number,
                         HallId = hallFromDB.Id,
-                        IsSold = soldTickets[i].IsSold,
-                        Price = soldTickets[i].Price,
+                        IsSold = ticket.IsSold,
+                        Price = ticket.Price,
                     });
                 }
             }
             else
             {
                 var allTickets = sessionFromDB.Tickets.ToList();
-                if (allTickets == null)
+                foreach (var ticket in allTickets)
                 {
-                    throw new Exception();
-                }
-                for (int i = 0; i < allTickets.Count; i++)
-                {
-                    var placeOnTheTicket = placesInHall.FirstOrDefault(x => x.Id == allTickets[i].PlaceId);
-                    if (placeOnTheTicket == null)
-                    {
-                        throw new Exception();
-                    }
-                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == placeOnTheTicket.RowId);
+                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == ticket.Place.RowId);
                     if (rowOnTheTicket == null)
                     {
                         throw new Exception();
                     }
-                    ticketStatisticList.Add(new TicketView
+                    ticketViewList.Add(new TicketView
                     {
-                        Id = allTickets[i].Id,
-                        MovieName = movieFromDB.Name,
-                        PlaceNumber = placeOnTheTicket.Number,
+                        Id = ticket.Id,
+                        MovieName = sessionFromDB.Movie.Name,
+                        PlaceNumber = ticket.Place.Number,
                         RowNumber = rowOnTheTicket.Number,
                         HallId = hallFromDB.Id,
-                        IsSold = allTickets[i].IsSold,
-                        Price = allTickets[i].Price,
+                        IsSold = ticket.IsSold,
+                        Price = ticket.Price,
                     });
                 }
             }
-            return ticketStatisticList;
+            return ticketViewList;
         }
         public async Task SellTickets(List<int> ticketsIds)
         {
