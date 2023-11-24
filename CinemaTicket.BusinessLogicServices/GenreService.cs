@@ -3,34 +3,45 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.DataTransferObjects.Genres;
+using CinemaTicket.Infrastructure.Constants;
+using CinemaTicket.Infrastructure.Exceptions;
 
 namespace CinemaTicket.BusinessLogicServices
 {
     public class GenreService : IGenreService
     {
         private readonly IGenreDataAccess genreDataAccess;
-        public GenreService(IGenreDataAccess genreDataAccess)
+        private readonly ILogger<HallService> logger;
+        public GenreService(IGenreDataAccess genreDataAccess, ILogger<HallService> logger)
         {
             this.genreDataAccess = genreDataAccess;
+            this.logger = logger;
         }
         public async Task CreateAsync(GenreCreate genreCreate)
         {
             if (genreCreate == null)
             {
-                throw new Exception("CreateAsync: One or more input parameters contain null");
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(GenreCreate));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (string.IsNullOrEmpty(genreCreate.Name) || string.IsNullOrWhiteSpace(genreCreate.Name))
             {
-                throw new Exception("CreateAsync: Genre Name field is required");
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(genreCreate.Name));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var genreFromDB = genreDataAccess.GetGenreAsync(genreCreate.Name);
             if (genreFromDB != null)
             {
-                throw new Exception("Genre with the same name already exists");
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Genre), genreCreate.Name);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var genre = new Genre
             {
@@ -45,16 +56,22 @@ namespace CinemaTicket.BusinessLogicServices
         {
             if (genreUpdate.Id <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(GenreUpdate), nameof(genreUpdate.Id));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (string.IsNullOrEmpty(genreUpdate.Name) || string.IsNullOrWhiteSpace(genreUpdate.Name))
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(genreUpdate.Name));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var genreFromDB = await genreDataAccess.GetGenreAsync(genreUpdate.Id);
             if (genreFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Genre), genreUpdate.Id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             genreFromDB.Name = genreUpdate.Name;
             genreFromDB.Description = genreUpdate.Description;
@@ -66,7 +83,9 @@ namespace CinemaTicket.BusinessLogicServices
             var genreFromDB = await genreDataAccess.GetGenreAsync(id);
             if (genreFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Genre), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return new GenreDetails
             {
@@ -82,7 +101,9 @@ namespace CinemaTicket.BusinessLogicServices
             var genresFromDB = await genreDataAccess.GetGenreListAsync();
             if (genresFromDB == null || genresFromDB.Count == 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Genre));
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return genresFromDB.Select(x => new GenreListElement
             {
@@ -95,7 +116,9 @@ namespace CinemaTicket.BusinessLogicServices
             var genreFromDB = await genreDataAccess.GetGenreAsync(id);
             if (genreFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Genre), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             await genreDataAccess.DeleteGenreAsync(genreFromDB);
         }
