@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CinemaTicket.DataTransferObjects.Statistic
+namespace CinemaTicket.DataTransferObjects.Tickets
 {
-    public class TicketStatistic
+    public class TicketView
     {
         public int Id { get; set; }
         public string MovieName { get; set; }

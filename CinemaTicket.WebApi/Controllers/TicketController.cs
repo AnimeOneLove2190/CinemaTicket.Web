@@ -48,5 +48,23 @@ namespace CinemaTicket.WebApi.Controllers
         {
             await ticketService.DeleteAsync(id);
         }
+        [HttpGet]
+        [Route("GetTicketStatisticList")]
+        public async Task<List<TicketView>> GetTicketStatisticListAsync(int sessionId, Nullable<bool> isSold)
+        {
+            return await ticketService.GetTicketViewList(sessionId, isSold);
+        }
+        [HttpPost]
+        [Route("SellTicketList")]
+        public async Task SellTicketList(List<int> ticketsIds)
+        {
+            await ticketService.SellTickets(ticketsIds);
+        }
+        [HttpPost]
+        [Route("DeleteTicketList")]
+        public async Task DeleteTicketList(List<int> ticketsIds)
+        {
+            await ticketService.DeleteTickets(ticketsIds);
+        }
     }
 }

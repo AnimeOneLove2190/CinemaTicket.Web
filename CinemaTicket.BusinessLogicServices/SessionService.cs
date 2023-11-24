@@ -223,5 +223,69 @@ namespace CinemaTicket.BusinessLogicServices
             }
             await sessionDataAccess.DeleteSessionAsync(sessionFromDB);
         }
+        public async Task<List<SeansView>> GetSeansViewList(Nullable<DateTime> start, Nullable<DateTime> end)
+        {
+            var allSessions = await sessionDataAccess.GetSessionListAsync();
+            var allHalls = await hallDataAccess.GetHallListAsync();
+            var allMovies = await movieDataAccess.GetMovieListAsync();
+            var sessionsInPeriod = new List<Session>();
+            if (start != null && end != null)
+            {
+                sessionsInPeriod = allSessions.Where(x => x.Start >= start && x.Start <= end).ToList();
+                {
+                    if (sessionsInPeriod == null || sessionsInPeriod.Count <= 0)
+                    {
+                        throw new Exception();
+                    }
+                }
+            }
+            else
+            {
+                sessionsInPeriod = allSessions.Where(x => x.Start >= DateTime.Today && x.Start <= DateTime.Today).ToList();
+                {
+                    if (sessionsInPeriod == null || sessionsInPeriod.Count <= 0)
+                    {
+                        throw new Exception();
+                    }
+                }
+            }
+            var statisticList = new List<SeansView>();
+            for (int i = 0; i < sessionsInPeriod.Count; i++)
+            {
+                var hall = allHalls.FirstOrDefault(x => x.Id == sessionsInPeriod[i].HallId);
+                if (hall == null)
+                {
+                    throw new Exception();
+                }
+                var movie = allMovies.FirstOrDefault(x => x.Id == sessionsInPeriod[i].MovieId);
+                if (hall == null)
+                {
+                    throw new Exception();
+                }
+                var hasTickets = false;
+                var ticketsInSession = sessionsInPeriod[i].Tickets.ToList();
+                if (ticketsInSession != null)
+                {
+                    hasTickets = true;
+                }
+                var hasUnsoldTickets = false;
+                var usnoldTicket = sessionsInPeriod[i].Tickets.FirstOrDefault(x => x.IsSold == false);
+                if (usnoldTicket != null)
+                {
+                    hasUnsoldTickets = true;
+                }
+                statisticList.Add(new SeansView
+                {
+                    Id = sessionsInPeriod[i].Id,
+                    MovieName = movie.Name,
+                    HallId = hall.Id,
+                    Start = sessionsInPeriod[i].Start,
+                    Duration = movie.Duration,
+                    HasTickets = hasTickets,
+                    HasUnsoldTickets = hasUnsoldTickets,
+                });
+            }
+            return statisticList;
+        }
     }
 }

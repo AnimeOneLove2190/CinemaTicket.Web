@@ -6,7 +6,6 @@ using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Sessions;
 using CinemaTicket.DataTransferObjects.Tickets;
-using CinemaTicket.DataTransferObjects.Statistic;
 using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices
@@ -28,7 +27,7 @@ namespace CinemaTicket.BusinessLogicServices
             this.movieDataAccess = movieDataAccess;
             this.ticketDataAccess = ticketDataAccess;
         }
-        public async Task<List<Statictic>>GetStaticticList(Nullable<DateTime> start, Nullable<DateTime> end)
+        public async Task<List<SeansView>>GetSeansViewList(Nullable<DateTime> start, Nullable<DateTime> end)
         {
             var allSessions = await sessionDataAccess.GetSessionListAsync();
             var allHalls = await hallDataAccess.GetHallListAsync();
@@ -54,7 +53,7 @@ namespace CinemaTicket.BusinessLogicServices
                     }
                 }
             }
-            var statisticList = new List<Statictic>();
+            var statisticList = new List<SeansView>();
             for (int i = 0; i < sessionsInPeriod.Count; i++)
             {
                 var hall = allHalls.FirstOrDefault(x => x.Id == sessionsInPeriod[i].HallId);
@@ -79,7 +78,7 @@ namespace CinemaTicket.BusinessLogicServices
                 {
                     hasUnsoldTickets = true;
                 }
-                statisticList.Add(new Statictic
+                statisticList.Add(new SeansView
                 {
                     Id = sessionsInPeriod[i].Id,
                     MovieName = movie.Name,
@@ -92,7 +91,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             return statisticList;
         }
-        public async Task<List<TicketStatistic>> GetTicketStaticticList(int sessionId, Nullable<bool> isSold)
+        public async Task<List<TicketView>> GetTicketViewList(int sessionId, Nullable<bool> isSold)
         {
             var sessionFromDB = await sessionDataAccess.GetSessionAsync(sessionId);
             if (sessionFromDB == null)
@@ -119,7 +118,7 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 throw new Exception();
             }
-            var ticketStatisticList = new List<TicketStatistic>();
+            var ticketStatisticList = new List<TicketView>();
             if (isSold != null)
             {
                 var soldTickets = sessionFromDB.Tickets.Where(x => x.IsSold == true).ToList();
@@ -139,7 +138,7 @@ namespace CinemaTicket.BusinessLogicServices
                     {
                         throw new Exception();
                     }
-                    ticketStatisticList.Add(new TicketStatistic
+                    ticketStatisticList.Add(new TicketView
                     {
                         Id = soldTickets[i].Id,
                         MovieName = movieFromDB.Name,
@@ -170,7 +169,7 @@ namespace CinemaTicket.BusinessLogicServices
                     {
                         throw new Exception();
                     }
-                    ticketStatisticList.Add(new TicketStatistic
+                    ticketStatisticList.Add(new TicketView
                     {
                         Id = allTickets[i].Id,
                         MovieName = movieFromDB.Name,

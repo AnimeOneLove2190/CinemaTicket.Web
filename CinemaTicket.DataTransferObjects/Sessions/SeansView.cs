@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CinemaTicket.DataTransferObjects.Sessions
 {
-    public class Statictic //TODO после мержа 609/dev перенести эту хуйню в папку statistic
+    public class SeansView
     {
         public int Id { get; set; }
         public string MovieName { get; set; }

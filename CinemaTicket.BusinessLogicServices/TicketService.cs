@@ -12,13 +12,17 @@ namespace CinemaTicket.BusinessLogicServices
 {
     public class TicketService : ITicketService
     {
+        private readonly IHallDataAccess hallDataAccess;
+        private readonly IMovieDataAccess movieDataAccess;
         private readonly ISessionDataAccess sessionDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
         private readonly ITicketDataAccess ticketDataAccess;
         private readonly IRowDataAccess rowDataAccess;
 
-        public TicketService(ISessionDataAccess sessionDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, IMovieDataAccess movieDataAccess, ITicketDataAccess ticketDataAccess)
+        public TicketService(ISessionDataAccess sessionDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, IMovieDataAccess movieDataAccess, ITicketDataAccess ticketDataAccess, IHallDataAccess hallDataAccess)
         {
+            this.hallDataAccess = hallDataAccess;
+            this.movieDataAccess = movieDataAccess;
             this.sessionDataAccess = sessionDataAccess;
             this.placeDataAccess = placeDataAccess;
             this.ticketDataAccess = ticketDataAccess;
@@ -157,6 +161,131 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new Exception();
             }
             await ticketDataAccess.DeleteTicketAsync(ticketFromDB);
+        }
+        public async Task<List<TicketView>> GetTicketViewList(int sessionId, Nullable<bool> isSold)
+        {
+            var sessionFromDB = await sessionDataAccess.GetSessionAsync(sessionId);
+            if (sessionFromDB == null)
+            {
+                throw new Exception();
+            }
+            var hallFromDB = await hallDataAccess.GetHallAsync(sessionFromDB.HallId);
+            if (hallFromDB == null || hallFromDB.Rows == null)
+            {
+                throw new Exception();
+            }
+            var rowsInHall = hallFromDB.Rows.ToList();
+            var placesInHall = new List<Place>();
+            for (int i = 0; i < rowsInHall.Count; i++) //TODO Проверить, как сваггер появится
+            {
+                var placesInRow = rowsInHall[i].Places.ToList();
+                for (int j = 0; j < placesInRow.Count; j++)
+                {
+                    placesInHall.Add(placesInRow[j]);
+                }
+            }
+            var movieFromDB = await movieDataAccess.GetMovieAsync(sessionFromDB.MovieId);
+            if (movieFromDB == null)
+            {
+                throw new Exception();
+            }
+            var ticketStatisticList = new List<TicketView>();
+            if (isSold != null)
+            {
+                var soldTickets = sessionFromDB.Tickets.Where(x => x.IsSold == true).ToList();
+                if (soldTickets == null)
+                {
+                    throw new Exception();
+                }
+                for (int i = 0; i < soldTickets.Count; i++)
+                {
+                    var placeOnTheTicket = placesInHall.FirstOrDefault(x => x.Id == soldTickets[i].PlaceId);
+                    if (placeOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == placeOnTheTicket.RowId);
+                    if (rowOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    ticketStatisticList.Add(new TicketView
+                    {
+                        Id = soldTickets[i].Id,
+                        MovieName = movieFromDB.Name,
+                        PlaceNumber = placeOnTheTicket.Number,
+                        RowNumber = rowOnTheTicket.Number,
+                        HallId = hallFromDB.Id,
+                        IsSold = soldTickets[i].IsSold,
+                        Price = soldTickets[i].Price,
+                    });
+                }
+            }
+            else
+            {
+                var allTickets = sessionFromDB.Tickets.ToList();
+                if (allTickets == null)
+                {
+                    throw new Exception();
+                }
+                for (int i = 0; i < allTickets.Count; i++)
+                {
+                    var placeOnTheTicket = placesInHall.FirstOrDefault(x => x.Id == allTickets[i].PlaceId);
+                    if (placeOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == placeOnTheTicket.RowId);
+                    if (rowOnTheTicket == null)
+                    {
+                        throw new Exception();
+                    }
+                    ticketStatisticList.Add(new TicketView
+                    {
+                        Id = allTickets[i].Id,
+                        MovieName = movieFromDB.Name,
+                        PlaceNumber = placeOnTheTicket.Number,
+                        RowNumber = rowOnTheTicket.Number,
+                        HallId = hallFromDB.Id,
+                        IsSold = allTickets[i].IsSold,
+                        Price = allTickets[i].Price,
+                    });
+                }
+            }
+            return ticketStatisticList;
+        }
+        public async Task SellTickets(List<int> ticketsIds)
+        {
+            var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
+            if (ticketsFromDB == null)
+            {
+                throw new Exception();
+            }
+            var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
+            if (unsoldTickets == null)
+            {
+                throw new Exception();
+            }
+            var ticketsToUpdate = unsoldTickets;
+            for (int i = 0; i < ticketsToUpdate.Count; i++)
+            {
+                ticketsToUpdate[i].IsSold = true;
+            }
+            await ticketDataAccess.UpdateTicketListAsync(ticketsToUpdate);
+        }
+        public async Task DeleteTickets(List<int> ticketsIds)
+        {
+            var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
+            if (ticketsFromDB == null)
+            {
+                throw new Exception();
+            }
+            var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
+            if (unsoldTickets == null)
+            {
+                throw new Exception();
+            }
+            await ticketDataAccess.DeleteTicketListAsync(unsoldTickets);
         }
     }
 }

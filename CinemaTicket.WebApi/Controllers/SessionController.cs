@@ -48,5 +48,11 @@ namespace CinemaTicket.WebApi.Controllers
         {
             await sessionService.DeleteAsync(id);
         }
+        [HttpGet]
+        [Route("GetSeansList")]
+        public async Task<List<SeansView>> GetSeansListAsync(Nullable<DateTime> start, Nullable<DateTime> end)
+        {
+            return await sessionService.GetSeansViewList(start, end);
+        }
     }
 }

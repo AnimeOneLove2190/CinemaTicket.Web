@@ -14,5 +14,8 @@ namespace CinemaTicket.BusinessLogic.Interfaces
         Task<TicketDetails> GetAsync(int id);
         Task<List<TicketListElement>> GetListAsync();
         Task DeleteAsync(int id);
+        Task<List<TicketView>> GetTicketViewList(int sessionId, Nullable<bool> isSold);
+        Task SellTickets(List<int> ticketsIds);
+        Task DeleteTickets(List<int> ticketsIds);
     }
 }

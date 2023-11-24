@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Sessions;
-using CinemaTicket.DataTransferObjects.Statistic;
+using CinemaTicket.DataTransferObjects.Tickets;
 
 namespace CinemaTicket.WebApi.Controllers
 {
@@ -21,15 +21,15 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpGet]
         [Route("GetSeansList")]
-        public async Task<List<Statictic>> GetSeansListAsync(Nullable<DateTime> start, Nullable<DateTime> end)
+        public async Task<List<SeansView>> GetSeansListAsync(Nullable<DateTime> start, Nullable<DateTime> end)
         {
-            return await statisticService.GetStaticticList(start, end);
+            return await statisticService.GetSeansViewList(start, end);
         }
         [HttpGet]
         [Route("GetTicketStatisticList")]
-        public async Task<List<TicketStatistic>> GetTicketStatisticListAsync(int sessionId, Nullable<bool> isSold)
+        public async Task<List<TicketView>> GetTicketStatisticListAsync(int sessionId, Nullable<bool> isSold)
         {
-            return await statisticService.GetTicketStaticticList(sessionId, isSold);
+            return await statisticService.GetTicketViewList(sessionId, isSold);
         }
         [HttpPost]
         [Route("SellTicketList")]
