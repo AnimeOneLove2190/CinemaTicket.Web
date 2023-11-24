@@ -13,8 +13,9 @@ namespace CinemaTicket.Infrastructure.Constants
         public const string FieldIsRequired = "Field {0} is required";
         public const string ListNotFound = "List of {0} not found";
         public const string EntityHasSoldTickets = "{0} has sold tickets";
-        public const string CannotBeNegatevie = "{0} {1} field must not be empty or contain a negative value";
+        public const string CannotBeNullOrNegatevie = "{0} {1} field must not be empty or contain a negative value";
         public const string Duplicate = "{0} list has one or more duplicate.";
         public const string NotAllFound = "Not all items from the {0} were found in the database";
+        public const string TicketIsSold = "Ticket with Id {0} has already been sold, it cannot be changed";
     }
 }

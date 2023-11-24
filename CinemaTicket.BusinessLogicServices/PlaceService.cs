@@ -34,19 +34,19 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (placeCreate.RowId <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceCreate), nameof(placeCreate.RowId));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(PlaceCreate), nameof(placeCreate.RowId));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (placeCreate.Number <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceCreate), nameof(placeCreate.Number));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(PlaceCreate), nameof(placeCreate.Number));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (placeCreate.Capacity <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceCreate), nameof(placeCreate.Capacity));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(PlaceCreate), nameof(placeCreate.Capacity));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -87,25 +87,25 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (placeUpdate.Id <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Id));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Id));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (placeUpdate.RowId <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.RowId));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.RowId));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (placeUpdate.Number <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Number));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Number));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (placeUpdate.Capacity <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Capacity));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Capacity));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }

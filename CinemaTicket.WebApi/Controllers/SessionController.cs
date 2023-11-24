@@ -50,7 +50,7 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpGet]
         [Route("GetSeansList")]
-        public async Task<List<SeansView>> GetSeansListAsync(Nullable<DateTime> start, Nullable<DateTime> end)
+        public async Task<List<SeansView>> GetSeansListAsync(DateTime? start, DateTime? end)
         {
             return await sessionService.GetSeansViewList(start, end);
         }
