@@ -63,5 +63,9 @@ namespace CinemaTicket.DataAccess
             cinemaManagerContext.RemoveRange(sessions);
             await cinemaManagerContext.SaveChangesAsync();
         }
+        public async Task<List<Session>> GetSessionListInPeriodAsync (DateTime startDate, DateTime endDate)
+        {
+            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).Include(x => x.Hall).Include(x => x.Movie).Where(x => x.Start >= startDate && x.Start <= endDate).AsNoTracking().ToListAsync();
+        }
     }
 }

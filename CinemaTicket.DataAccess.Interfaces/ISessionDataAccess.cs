@@ -17,5 +17,6 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task UpdateSessionAsync(Session session);
         Task DeleteSessionAsync(Session session);
         Task DeleteSessionListAsync(List<Session> sessions);
+        Task<List<Session>> GetSessionListInPeriodAsync(DateTime startDate, DateTime endDate);
     }
 }
