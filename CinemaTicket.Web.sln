@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.BusinessLogicS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CinemaTicket.TestObjects", "CinemaTicket.TestObjetcs\CinemaTicket.TestObjects.csproj", "{9B18E93C-EB0C-491A-B5C7-9EAA99864055}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CinemaTicket.Infrastructure", "CinemaTicket.Infrastructure\CinemaTicket.Infrastructure.csproj", "{00243329-ADCC-4220-9125-B6A4566ACCC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{9B18E93C-EB0C-491A-B5C7-9EAA99864055}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B18E93C-EB0C-491A-B5C7-9EAA99864055}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B18E93C-EB0C-491A-B5C7-9EAA99864055}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00243329-ADCC-4220-9125-B6A4566ACCC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00243329-ADCC-4220-9125-B6A4566ACCC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00243329-ADCC-4220-9125-B6A4566ACCC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00243329-ADCC-4220-9125-B6A4566ACCC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

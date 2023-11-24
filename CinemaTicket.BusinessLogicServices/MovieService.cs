@@ -2,11 +2,14 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Movies;
 using CinemaTicket.DataTransferObjects.Genres;
 using CinemaTicket.DataAccess.Interfaces;
+using CinemaTicket.Infrastructure.Constants;
+using CinemaTicket.Infrastructure.Exceptions;
 
 namespace CinemaTicket.BusinessLogicServices
 {
@@ -14,31 +17,41 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IMovieDataAccess movieDataAccess;
         private readonly IGenreDataAccess genreDataAccess;
-        public MovieService(IMovieDataAccess movieDataAccess, IGenreDataAccess genreDataAccess)
+        private readonly ILogger<MovieService> logger;
+        public MovieService(IMovieDataAccess movieDataAccess, IGenreDataAccess genreDataAccess, ILogger<MovieService> logger)
         {
             this.movieDataAccess = movieDataAccess;
             this.genreDataAccess = genreDataAccess;
+            this.logger = logger;
         }
         public async Task CreateAsync(MovieCreate movieCreate) 
         {
             if (string.IsNullOrEmpty(movieCreate.Name) || string.IsNullOrWhiteSpace(movieCreate.Name))
             {
-                throw new Exception("CreateAsync: Movie Name field is required");
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieCreate.Name));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (string.IsNullOrEmpty(movieCreate.Description) || string.IsNullOrWhiteSpace(movieCreate.Description))
             {
-                throw new Exception("CreateAsync: Movie Description field is required");
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieCreate.Name));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (movieCreate.Duration <= 0)
             {
-                throw new Exception("CreateMovie: Movie Duration field must not be empty or contain a negative value");
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(MovieCreate), nameof(movieCreate.Duration));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var movieFromDB = await movieDataAccess.GetMovieAsync(movieCreate.Name);
             if (movieFromDB != null)
             {
                 if (movieFromDB.Name.ToLower() == movieCreate.Name.ToLower() && movieFromDB.Description.ToLower() == movieCreate.Description.ToLower())
                 {
-                    throw new Exception("A Movie with the same name and the same description already exists");
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieCreate.Name);
+                    logger.LogError(exceptionMessage);
+                    throw new CustomException(exceptionMessage);
                 }
             }
             var movie = new Movie
@@ -79,25 +92,35 @@ namespace CinemaTicket.BusinessLogicServices
         {
             if (string.IsNullOrEmpty(movieUpdate.Name) || string.IsNullOrWhiteSpace(movieUpdate.Name))
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieUpdate.Name));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (string.IsNullOrEmpty(movieUpdate.Description) || string.IsNullOrWhiteSpace(movieUpdate.Description))
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieUpdate.Description));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (movieUpdate.Duration <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(MovieUpdate), nameof(movieUpdate.Duration));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var movieFromDB = await movieDataAccess.GetMovieAsync(movieUpdate.Id);
             if (movieFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, movieUpdate.Id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var uniqGenreIds = movieUpdate.GenreIds.Distinct().ToList();
             if (uniqGenreIds.Count != movieUpdate.GenreIds.Count)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.Duplicate, nameof(movieUpdate.GenreIds));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (movieUpdate.GenreIds == null)
             {
@@ -115,7 +138,9 @@ namespace CinemaTicket.BusinessLogicServices
             var genres = await genreDataAccess.GetGenreListAsync(genreIds);
             if (genres.Count != genreIds.Count)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotAllFound, nameof(genreIds));
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var oldGenreIds = movie.Genres.Select(x => x.Id).ToList();
             var newGenreIds = genreIds.Except(oldGenreIds).ToList();
@@ -138,7 +163,9 @@ namespace CinemaTicket.BusinessLogicServices
             var movieFromDB = await movieDataAccess.GetMovieAsync(id);
             if (movieFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return new MovieDetails
             {
@@ -162,7 +189,9 @@ namespace CinemaTicket.BusinessLogicServices
             var moviesFromDB = await movieDataAccess.GetMovieListAsync();
             if (moviesFromDB == null || moviesFromDB.Count == 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie));
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return moviesFromDB.Select(x => new MovieListElement
             {

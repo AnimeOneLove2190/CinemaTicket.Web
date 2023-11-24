@@ -2,11 +2,14 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Rows;
 using CinemaTicket.DataTransferObjects.Places;
 using CinemaTicket.DataAccess.Interfaces;
+using CinemaTicket.Infrastructure.Constants;
+using CinemaTicket.Infrastructure.Exceptions;
 
 namespace CinemaTicket.BusinessLogicServices
 {
@@ -15,37 +18,50 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IHallDataAccess hallDataAccess;
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
-        public RowService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess)
+        private readonly ILogger<RowService> logger;
+
+        public RowService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<RowService> logger)
         {
             this.hallDataAccess = hallDataAccess;
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
+            this.logger = logger;
         }
         public async Task CreateAsync(RowCreate rowCreate)
         {
             if (rowCreate == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(RowCreate));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (rowCreate.HallId <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(RowCreate), nameof(rowCreate.HallId));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (rowCreate.Number <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(RowCreate), nameof(rowCreate.Number));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var hallFromDB = await hallDataAccess.GetHallAsync(rowCreate.HallId);
             if (hallFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), rowCreate.HallId);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var rowsNumbers = hallFromDB.Rows.Select(x => x.Number).ToList();
             if (rowsNumbers != null)
             {
                 if (rowsNumbers.Contains(rowCreate.Number))
                 {
-                    throw new Exception();
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Row), nameof(rowCreate.Number));
+                    logger.LogError(exceptionMessage);
+                    throw new CustomException(exceptionMessage);
                 }
             }
             var row = new Row
@@ -77,37 +93,51 @@ namespace CinemaTicket.BusinessLogicServices
         {
             if (rowUpdate == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(RowUpdate));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (rowUpdate.Id <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(RowUpdate), nameof(rowUpdate.Id));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (rowUpdate.HallId <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(RowUpdate), nameof(rowUpdate.HallId));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (rowUpdate.Number <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(RowUpdate), nameof(rowUpdate.Number));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var hallFromDB = await hallDataAccess.GetHallAsync(rowUpdate.HallId);
             if (hallFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), rowUpdate.HallId);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var rowWithTheSameNumber = hallFromDB.Rows.FirstOrDefault(x => x.Number == rowUpdate.Number);
             if (rowWithTheSameNumber != null)
             {
                 if (rowWithTheSameNumber.Id != rowUpdate.Id)
                 {
-                    throw new Exception();
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Row), nameof(rowUpdate.Number));
+                    logger.LogError(exceptionMessage);
+                    throw new CustomException(exceptionMessage);
                 }
             }
             var rowFromDB = await rowDataAccess.GetRowAsync(rowUpdate.Id);
             if (rowFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), rowUpdate.Id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var soldPlacesInRow = new List<Place>();
             if (rowFromDB.Places != null && rowFromDB.Places.Count > 0)
@@ -165,7 +195,9 @@ namespace CinemaTicket.BusinessLogicServices
             var rowFromDB = await rowDataAccess.GetRowAsync(id);
             if (rowFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return new RowDetails
             {
@@ -188,9 +220,11 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<List<RowListElement>> GetListAsync()
         {
             var rowsFromDB = await rowDataAccess.GetRowListAsync();
-            if (rowsFromDB == null || rowsFromDB.Count == 0)
+            if (rowsFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Row));
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return rowsFromDB.Select(x => new RowListElement
             {
@@ -204,7 +238,9 @@ namespace CinemaTicket.BusinessLogicServices
             var rowFromDB = await rowDataAccess.GetRowAsync(id);
             if (rowFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var soldPlacesInRow = new List<Place>();
             if (rowFromDB.Places != null && rowFromDB.Places.Count > 0)
@@ -217,7 +253,9 @@ namespace CinemaTicket.BusinessLogicServices
                     soldTickets = placesInRow[i].Tickets.Where(x => x.IsSold == true).ToList();
                     if (soldTickets.Count > 0)
                     {
-                        throw new Exception();
+                        var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Row));
+                        logger.LogError(exceptionMessage);
+                        throw new CustomException(exceptionMessage);
                     }
                 }
             }

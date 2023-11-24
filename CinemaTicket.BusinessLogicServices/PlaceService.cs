@@ -2,11 +2,14 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Places;
 using CinemaTicket.DataTransferObjects.Tickets;
 using CinemaTicket.DataAccess.Interfaces;
+using CinemaTicket.Infrastructure.Constants;
+using CinemaTicket.Infrastructure.Exceptions;
 
 namespace CinemaTicket.BusinessLogicServices
 {
@@ -14,36 +17,54 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
-        public PlaceService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess)
+        private readonly ILogger<PlaceService> logger;
+        public PlaceService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<PlaceService> logger)
         {
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
+            this.logger = logger;
         }
         public async Task CreateAsync(PlaceCreate placeCreate)
         {
             if (placeCreate == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(PlaceCreate));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (placeCreate.RowId <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceCreate), nameof(placeCreate.RowId));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
+            if (placeCreate.Number <= 0)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceCreate), nameof(placeCreate.Number));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (placeCreate.Capacity <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceCreate), nameof(placeCreate.Capacity));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var rowFromDB = await rowDataAccess.GetRowAsync(placeCreate.RowId);
             if (rowFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), placeCreate.RowId);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var rowsNumbers = rowFromDB.Places.Select(x => x.Number).ToList();
             if (rowsNumbers != null)
             {
                 if (rowsNumbers.Contains(placeCreate.Number))
                 {
-                    throw new Exception();
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Place), nameof(placeCreate.Number));
+                    logger.LogError(exceptionMessage);
+                    throw new CustomException(exceptionMessage);
                 }
             }
             var place = new Place
@@ -60,46 +81,64 @@ namespace CinemaTicket.BusinessLogicServices
         {
             if (placeUpdate == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(PlaceUpdate));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (placeUpdate.Id <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Id));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (placeUpdate.RowId <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.RowId));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (placeUpdate.Number <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Number));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (placeUpdate.Capacity <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(PlaceUpdate), nameof(placeUpdate.Capacity));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var placeFromDB = await placeDataAccess.GetPlaceAsync(placeUpdate.Id);
             if (placeFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), placeUpdate.Id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var rowRFromDB = await rowDataAccess.GetRowAsync(placeUpdate.RowId);
             if (rowRFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), placeUpdate.RowId);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var placeWithTheSameNumber = rowRFromDB.Places.FirstOrDefault(x => x.Number == placeUpdate.Number);
             if (placeWithTheSameNumber != null)
             {
                 if (placeWithTheSameNumber.Id != placeUpdate.Id)
                 {
-                    throw new Exception();
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Place), nameof(placeUpdate.Number));
+                    logger.LogError(exceptionMessage);
+                    throw new CustomException(exceptionMessage);
                 }
             }
             var soldTickets = placeFromDB.Tickets.Where(x => x.IsSold == true).ToList();
             if (soldTickets.Count > 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Place));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             placeFromDB.Number = placeUpdate.Number;
             placeFromDB.Capacity = placeUpdate.Capacity;
@@ -112,7 +151,9 @@ namespace CinemaTicket.BusinessLogicServices
             var placeFromDB = await placeDataAccess.GetPlaceAsync(id);
             if (placeFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return new PlaceDetails
             {
@@ -138,9 +179,11 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<List<PlaceListElement>> GetListAsync()
         {
             var placesFromDB = await placeDataAccess.GetPlaceListAsync();
-            if (placesFromDB == null || placesFromDB.Count == 0)
+            if (placesFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Place));
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return placesFromDB.Select(x => new PlaceListElement
             {
@@ -155,12 +198,16 @@ namespace CinemaTicket.BusinessLogicServices
             var placeFromDB = await placeDataAccess.GetPlaceAsync(id);
             if (placeFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var soldTickets = placeFromDB.Tickets.Where(X => X.IsSold == true).ToList();
             if (soldTickets.Count > 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Place));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             await placeDataAccess.DeletePlaceAsync(placeFromDB);
         }

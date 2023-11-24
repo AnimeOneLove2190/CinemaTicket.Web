@@ -2,11 +2,15 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Halls;
 using CinemaTicket.DataTransferObjects.Rows;
 using CinemaTicket.DataAccess.Interfaces;
+using CinemaTicket.Infrastructure.Constants;
+using CinemaTicket.Infrastructure.Exceptions;
+
 
 namespace CinemaTicket.BusinessLogicServices
 {
@@ -15,17 +19,21 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IHallDataAccess hallDataAccess;
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
-        public HallService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess)
+        private readonly ILogger<HallService> logger;
+        public HallService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<HallService> logger)
         {
             this.hallDataAccess = hallDataAccess;
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
+            this.logger = logger;
         }
         public async Task CreateAsync(HallCreate hallCreate)
         {
             if (hallCreate == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(HallCreate));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var hall = new Hall
             {
@@ -55,16 +63,22 @@ namespace CinemaTicket.BusinessLogicServices
         {
             if (hallUpdate == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(HallUpdate));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (hallUpdate.Id <= 0)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(HallUpdate), nameof(hallUpdate.Id));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var hallFromDB = await hallDataAccess.GetHallAsync(hallUpdate.Id);
             if (hallFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), hallUpdate.Id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var soldPlacesInHall = new List<Place>();
             if (hallFromDB.Rows != null || hallFromDB.Rows.Count > 0)
@@ -122,7 +136,9 @@ namespace CinemaTicket.BusinessLogicServices
             var hallFromDB = await hallDataAccess.GetHallAsync(id);
             if (hallFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return new HallDetails
             {
@@ -143,9 +159,11 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<List<HallListElement>> GetListAsync()
         {
             var hallsFromDB = await hallDataAccess.GetHallListAsync();
-            if (hallsFromDB == null || hallsFromDB.Count == 0)
+            if (hallsFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Hall));
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             return hallsFromDB.Select(x => new HallListElement
             {
@@ -158,7 +176,9 @@ namespace CinemaTicket.BusinessLogicServices
             var hallFromDB = await hallDataAccess.GetHallAsync(id);
             if (hallFromDB == null)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), id);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
             }
             var soldPlacesInHall = new List<Place>();
             if (hallFromDB.Rows != null || hallFromDB.Rows.Count > 0)
@@ -171,7 +191,9 @@ namespace CinemaTicket.BusinessLogicServices
                     var soldTickets = placesInHall[i].Tickets.Where(x => x.IsSold == true).ToList();
                     if (soldTickets.Count > 0)
                     {
-                        throw new Exception();
+                        var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Hall));
+                        logger.LogError(exceptionMessage);
+                        throw new CustomException(exceptionMessage);
                     }
                 }
             }
