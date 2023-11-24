@@ -17,5 +17,6 @@ namespace CinemaTicket.Infrastructure.Constants
         public const string Duplicate = "{0} list has one or more duplicate.";
         public const string NotAllFound = "Not all items from the {0} were found in the database";
         public const string TicketIsSold = "Ticket with Id {0} has already been sold, it cannot be changed";
+        public const string UnhandledException = "I don't know how to properly describe this exception";
     }
 }

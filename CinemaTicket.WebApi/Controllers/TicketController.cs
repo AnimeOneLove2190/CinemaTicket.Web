@@ -50,7 +50,7 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpGet]
         [Route("GetTicketViewList")]
-        public async Task<List<TicketView>> GetTicketViewListAsync(int sessionId, Nullable<bool> isSold)
+        public async Task<List<TicketView>> GetTicketViewListAsync(int sessionId, bool? isSold)
         {
             return await ticketService.GetTicketViewList(sessionId, isSold);
         }

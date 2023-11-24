@@ -58,19 +58,19 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            var sessionWithTheSameStart = await sessionDataAccess.GetSessionAsync(sessionCreate.Start);
-            if (sessionWithTheSameStart != null && sessionWithTheSameStart.HallId == sessionCreate.HallId)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Session), nameof(sessionCreate.Start));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
             var hallFromDB = await hallDataAccess.GetHallAsync(sessionCreate.HallId);
             if (hallFromDB == null || hallFromDB.Rows == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), sessionCreate.HallId);
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
+            }
+            var sessionWithTheSameStart = await sessionDataAccess.GetSessionAsync(sessionCreate.Start, sessionCreate.HallId);
+            if (sessionWithTheSameStart != null && sessionWithTheSameStart.HallId == sessionCreate.HallId)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Session), nameof(sessionCreate.Start));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             var movieFromDB = await movieDataAccess.GetMovieAsync(sessionCreate.MovieId);
             if (movieFromDB == null)
@@ -269,7 +269,7 @@ namespace CinemaTicket.BusinessLogicServices
         {
             var startDate = start ?? DateTime.Today;
             var endDate = end ?? DateTime.Today;
-            var sessionsInPeriod = await sessionDataAccess.GetSessionListInPeriodAsync((DateTime)start, (DateTime)end);
+            var sessionsInPeriod = await sessionDataAccess.GetSessionListInPeriodAsync(startDate, endDate);
             if (sessionsInPeriod == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Session));

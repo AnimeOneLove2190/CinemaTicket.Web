@@ -30,9 +30,9 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Sessions.Include(x => x.Tickets).ThenInclude(x => x.Place).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Session> GetSessionAsync(DateTime start)
+        public async Task<Session> GetSessionAsync(DateTime start, int hallId)
         {
-            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.Start == start);
+            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.Start == start && x.HallId == hallId);
         }
         public async Task<List<Session>> GetSessionListAsync()
         {
