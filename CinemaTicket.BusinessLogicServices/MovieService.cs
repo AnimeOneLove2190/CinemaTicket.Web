@@ -40,7 +40,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (movieCreate.Duration <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(MovieCreate), nameof(movieCreate.Duration));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(MovieCreate), nameof(movieCreate.Duration));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -104,7 +104,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (movieUpdate.Duration <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNegatevie, nameof(MovieUpdate), nameof(movieUpdate.Duration));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(MovieUpdate), nameof(movieUpdate.Duration));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }

@@ -47,7 +47,6 @@ namespace CinemaTicket.WebApi
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<ITicketDataAccess, TicketDataAccess>();
             services.AddScoped<ITicketService, TicketService>();
-            services.AddScoped<IStatisticService, StatisticService>();
             services.AddSwaggerGen();
         }
 

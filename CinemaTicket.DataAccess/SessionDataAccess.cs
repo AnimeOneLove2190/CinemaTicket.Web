@@ -28,11 +28,11 @@ namespace CinemaTicket.DataAccess
         }
         public async Task<Session> GetSessionAsync(int id)
         {
-            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.Id == id);
+            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).ThenInclude(x => x.Place).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Session> GetSessionAsync(DateTime start)
+        public async Task<Session> GetSessionAsync(DateTime start, int hallId)
         {
-            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.Start == start);
+            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).FirstOrDefaultAsync(x => x.Start == start && x.HallId == hallId);
         }
         public async Task<List<Session>> GetSessionListAsync()
         {
@@ -62,6 +62,10 @@ namespace CinemaTicket.DataAccess
             }
             cinemaManagerContext.RemoveRange(sessions);
             await cinemaManagerContext.SaveChangesAsync();
+        }
+        public async Task<List<Session>> GetSessionListInPeriodAsync (DateTime startDate, DateTime endDate)
+        {
+            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).Include(x => x.Hall).Include(x => x.Movie).Where(x => x.Start >= startDate && x.Start <= endDate).AsNoTracking().ToListAsync();
         }
     }
 }
