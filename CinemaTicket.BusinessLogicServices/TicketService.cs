@@ -283,9 +283,9 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new NotFoundException(exceptionMessage);
             }
             var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
-            if (unsoldTickets.Count <= 0)
+            if (unsoldTickets.Count != ticketsIds.Count)
             {
-                var exceptionMessage = ExceptionMessageTemplate.UnhandledException;
+                var exceptionMessage = ExceptionMessageTemplate.TicketsAreSold;
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -306,9 +306,9 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new NotFoundException(exceptionMessage);
             }
             var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
-            if (unsoldTickets.Count <= 0)
+            if (unsoldTickets.Count != ticketsIds.Count)
             {
-                var exceptionMessage = ExceptionMessageTemplate.UnhandledException;
+                var exceptionMessage = ExceptionMessageTemplate.TicketsAreSold;
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
