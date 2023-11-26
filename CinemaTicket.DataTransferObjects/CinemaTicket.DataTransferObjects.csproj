@@ -4,8 +4,4 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CinemaTicket.DataAccess.Interfaces\CinemaTicket.DataAccess.Interfaces.csproj" />
-  </ItemGroup>
-
 </Project>

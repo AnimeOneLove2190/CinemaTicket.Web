@@ -12,6 +12,6 @@ namespace CinemaTicket.DataTransferObjects.Movies
         public string Description { get; set; }
         public int? MinDuration { get; set; }
         public int? MaxDuration { get; set; }
-        public List<int> GenreIds { get; set; }
+        public List<string> GenreNames { get; set; }
     }
 }

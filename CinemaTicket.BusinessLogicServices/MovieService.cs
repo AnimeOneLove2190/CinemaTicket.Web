@@ -205,7 +205,7 @@ namespace CinemaTicket.BusinessLogicServices
         }
         public async Task<Page<MoviePageView>> GetPageAsync(MovieSearchRequest movieSearch)
         {
-            var moviePage = await movieDataAccess.GetPageAsync(movieSearch.PageNumber, movieSearch.PageSize, movieSearch.MovieName);
+            var moviePage = await movieDataAccess.GetPageAsync(movieSearch);
             return new Page<MoviePageView>
             {
                 Items = moviePage.Items.Select(x => new MoviePageView

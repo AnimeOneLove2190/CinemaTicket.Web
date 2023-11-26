@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using CinemaTicket.Entities;
 using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.Infrastructure.Helpers;
+using CinemaTicket.DataTransferObjects.Movies;
 namespace CinemaTicket.DataAccess
 {
     public class MovieDataAccess : IMovieDataAccess
@@ -49,21 +50,40 @@ namespace CinemaTicket.DataAccess
             cinemaManagerContext.Remove(movie);
             await cinemaManagerContext.SaveChangesAsync();
         }
-        public async Task<Page<Movie>> GetPageAsync(int page, int pageSize, string movieName)
+        public async Task<Page<Movie>> GetPageAsync(MovieSearchRequest movieSearchRequest)
         {
-            var items = await cinemaManagerContext.Movies
-                .Include(x => x.Genres)
+            var query = cinemaManagerContext.Movies.Include(x => x.Genres).AsQueryable();
+            if (!string.IsNullOrEmpty(movieSearchRequest.MovieName) || !string.IsNullOrWhiteSpace(movieSearchRequest.MovieName))
+            {
+                query = query.Where(x => x.Name.ToLower().Contains(movieSearchRequest.MovieName.ToLower()) || movieSearchRequest.MovieName.ToLower().Contains(x.Name.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(movieSearchRequest.Description) || !string.IsNullOrWhiteSpace(movieSearchRequest.Description))
+            {
+                query = query.Where(x => x.Name.ToLower().Contains(movieSearchRequest.Description.ToLower()) || movieSearchRequest.Description.ToLower().Contains(x.Name.ToLower()));
+            }
+            if (movieSearchRequest.MinDuration.HasValue)
+            {
+                query = query.Where(x => x.Duration >= movieSearchRequest.MinDuration);
+            }
+            if (movieSearchRequest.MaxDuration.HasValue)
+            {
+                query = query.Where(x => x.Duration <= movieSearchRequest.MaxDuration);
+            }
+            if (movieSearchRequest.GenreNames.Count > 0)
+            {
+                query = query.Where(x => x.Genres.Any(g => movieSearchRequest.GenreNames.Contains(g.Name)));
+            }
+            var items = await query
                 .OrderBy(x => x.CreatedOn)
-                .Skip(page * pageSize)
-                .Take(pageSize)
-                .Where(x => movieName.Contains(x.Name))
+                .Skip(movieSearchRequest.PageNumber * movieSearchRequest.PageSize)
+                .Take(movieSearchRequest.PageSize)
                 .ToListAsync();
-            var total = await cinemaManagerContext.Movies.Where(x => movieName.Contains(x.Name)).CountAsync();
+            var total = await query.CountAsync();
             return new Page<Movie>
             {
                 Items = items,
-                PageNumber = page,
-                PageSize = pageSize,
+                PageNumber = movieSearchRequest.PageNumber,
+                PageSize = movieSearchRequest.PageSize,
                 Total = total,
             };
         }

@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CinemaTicket.Entities;
 using CinemaTicket.Infrastructure.Helpers;
+using CinemaTicket.DataTransferObjects.Movies;
 
 namespace CinemaTicket.DataAccess.Interfaces
 {
@@ -16,6 +17,6 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task<List<Movie>> GetMovieListAsync(List<int> movieIds);
         Task UpdateMovieAsync(Movie movie);
         Task DeleteMovieAsync(Movie movie);
-        Task<Page<Movie>> GetPageAsync(int page, int pageSize, string movieName);
+        Task<Page<Movie>> GetPageAsync(MovieSearchRequest movieSearchRequest);
     }
 }

@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CinemaTicket.BusinessLogic.Interfaces\CinemaTicket.BusinessLogic.Interfaces.csproj" />
+    <ProjectReference Include="..\CinemaTicket.DataAccess.Interfaces\CinemaTicket.DataAccess.Interfaces.csproj" />
     <ProjectReference Include="..\CinemaTicket.Entities\CinemaTicket.Entities.csproj" />
     <ProjectReference Include="..\CinemaTicket.Infrastructure\CinemaTicket.Infrastructure.csproj" />
   </ItemGroup>
