@@ -10,6 +10,7 @@ using CinemaTicket.DataTransferObjects.Genres;
 using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.Infrastructure.Constants;
 using CinemaTicket.Infrastructure.Exceptions;
+using CinemaTicket.Infrastructure.Helpers;
 
 namespace CinemaTicket.BusinessLogicServices
 {
@@ -44,14 +45,17 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            var movieFromDB = await movieDataAccess.GetMovieAsync(movieCreate.Name);
-            if (movieFromDB != null)
+            var movieListFromDB = await movieDataAccess.GetMovieListAsync(movieCreate.Name);
+            foreach (var movieFromDB in movieListFromDB)
             {
-                if (movieFromDB.Name.ToLower() == movieCreate.Name.ToLower() && movieFromDB.Description.ToLower() == movieCreate.Description.ToLower())
+                if (movieFromDB != null)
                 {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieCreate.Name);
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
+                    if (movieFromDB.Name.ToLower() == movieCreate.Name.ToLower() && movieFromDB.Description.ToLower() == movieCreate.Description.ToLower())
+                    {
+                        var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieCreate.Name);
+                        logger.LogError(exceptionMessage);
+                        throw new CustomException(exceptionMessage);
+                    }
                 }
             }
             var movie = new Movie
@@ -199,5 +203,24 @@ namespace CinemaTicket.BusinessLogicServices
                 Name = x.Name,
             }).ToList();
         }
+        public async Task<Page<MoviePageView>> GetPageAsync(MovieSearchRequest movieSearch)
+        {
+            var moviePage = await movieDataAccess.GetPageAsync(movieSearch.PageNumber, movieSearch.PageSize, movieSearch.MovieName);
+            return new Page<MoviePageView>
+            {
+                Items = moviePage.Items.Select(x => new MoviePageView
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    Duration = x.Duration,
+                    GenreNames = x.Genres.Select(x => x.Name).ToList()
+                }).ToList(),
+                PageNumber = moviePage.PageNumber,
+                PageSize = moviePage.PageSize,
+                Total = moviePage.Total,
+            };
+        }
+
     }
 }

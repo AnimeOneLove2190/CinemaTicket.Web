@@ -6,7 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using CinemaTicket.Entities;
 using CinemaTicket.DataAccess.Interfaces;
-
+using CinemaTicket.Infrastructure.Helpers;
 namespace CinemaTicket.DataAccess
 {
     public class MovieDataAccess : IMovieDataAccess
@@ -25,9 +25,9 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Movie> GetMovieAsync(string name) //хуйня, переделать
+        public async Task<List<Movie>> GetMovieListAsync(string name)
         {
-            return await cinemaManagerContext.Movies.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+            return await cinemaManagerContext.Movies.Include(x => x.Genres).Where(x => name.ToLower().Contains(x.Name.ToLower())).AsNoTracking().ToListAsync();
         }
         public async Task<List<Movie>> GetMovieListAsync()
         {
@@ -40,14 +40,32 @@ namespace CinemaTicket.DataAccess
         public async Task UpdateMovieAsync(Movie movie)
         {
             movie.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(movie).State = EntityState.Modified; // Помогает решить проблему, если сущность получена как AsNoTracking, аналогично для Deleted
+            cinemaManagerContext.Entry(movie).State = EntityState.Modified;
             await cinemaManagerContext.SaveChangesAsync();
         }
         public async Task DeleteMovieAsync(Movie movie)
         {
-            cinemaManagerContext.Entry(movie).State = EntityState.Deleted; // Помогает решить проблему, если сущность получена как AsNoTracking, аналогично для Deleted
+            cinemaManagerContext.Entry(movie).State = EntityState.Deleted;
             cinemaManagerContext.Remove(movie);
             await cinemaManagerContext.SaveChangesAsync();
+        }
+        public async Task<Page<Movie>> GetPageAsync(int page, int pageSize, string movieName)
+        {
+            var items = await cinemaManagerContext.Movies
+                .Include(x => x.Genres)
+                .OrderBy(x => x.CreatedOn)
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .Where(x => movieName.Contains(x.Name))
+                .ToListAsync();
+            var total = await cinemaManagerContext.Movies.Where(x => movieName.Contains(x.Name)).CountAsync();
+            return new Page<Movie>
+            {
+                Items = items,
+                PageNumber = page,
+                PageSize = pageSize,
+                Total = total,
+            };
         }
     }
 }

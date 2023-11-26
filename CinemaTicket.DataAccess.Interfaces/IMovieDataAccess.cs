@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using CinemaTicket.Entities;
+using CinemaTicket.Infrastructure.Helpers;
 
 namespace CinemaTicket.DataAccess.Interfaces
 {
@@ -10,10 +11,11 @@ namespace CinemaTicket.DataAccess.Interfaces
     {
         Task CreateAsync(Movie movie);
         Task<Movie> GetMovieAsync(int id);
-        Task<Movie> GetMovieAsync(string name);
+        Task<List<Movie>> GetMovieListAsync(string name);
         Task<List<Movie>> GetMovieListAsync();
         Task<List<Movie>> GetMovieListAsync(List<int> movieIds);
         Task UpdateMovieAsync(Movie movie);
         Task DeleteMovieAsync(Movie movie);
+        Task<Page<Movie>> GetPageAsync(int page, int pageSize, string movieName);
     }
 }
