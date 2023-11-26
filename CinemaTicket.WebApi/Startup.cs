@@ -67,6 +67,7 @@ namespace CinemaTicket.WebApi
                         c.RoutePrefix = string.Empty;
                     });
             }
+            app.UseExceptionHandler("/error");
 
             app.UseHttpsRedirection();
 
