@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.5" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CinemaTicket.BusinessLogic.Interfaces\CinemaTicket.BusinessLogic.Interfaces.csproj" />
     <ProjectReference Include="..\CinemaTicket.DataAccess\CinemaTicket.DataAccess.csproj" />
     <ProjectReference Include="..\CinemaTicket.DataTransferObjects\CinemaTicket.DataTransferObjects.csproj" />
