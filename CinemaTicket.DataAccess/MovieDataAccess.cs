@@ -55,11 +55,11 @@ namespace CinemaTicket.DataAccess
             var query = cinemaManagerContext.Movies.Include(x => x.Genres).AsQueryable();
             if (!string.IsNullOrEmpty(movieSearchRequest.MovieName) || !string.IsNullOrWhiteSpace(movieSearchRequest.MovieName))
             {
-                query = query.Where(x => x.Name.ToLower().Contains(movieSearchRequest.MovieName.ToLower()) || movieSearchRequest.MovieName.ToLower().Contains(x.Name.ToLower()));
+                query = query.Where(x => x.Name.ToLower().Contains(movieSearchRequest.MovieName.ToLower()));
             }
             if (!string.IsNullOrEmpty(movieSearchRequest.Description) || !string.IsNullOrWhiteSpace(movieSearchRequest.Description))
             {
-                query = query.Where(x => x.Name.ToLower().Contains(movieSearchRequest.Description.ToLower()) || movieSearchRequest.Description.ToLower().Contains(x.Name.ToLower()));
+                query = query.Where(x => x.Description.ToLower().Contains(movieSearchRequest.Description.ToLower()));
             }
             if (movieSearchRequest.MinDuration.HasValue)
             {
@@ -69,9 +69,9 @@ namespace CinemaTicket.DataAccess
             {
                 query = query.Where(x => x.Duration <= movieSearchRequest.MaxDuration);
             }
-            if (movieSearchRequest.GenreNames.Count > 0)
+            if (movieSearchRequest.GenreIds.Count > 0)
             {
-                query = query.Where(x => x.Genres.Any(g => movieSearchRequest.GenreNames.Contains(g.Name)));
+                query = query.Where(x => movieSearchRequest.GenreIds.All(g => x.Genres.Select(dbg => dbg.Id).Contains(g)));
             }
             var items = await query
                 .OrderBy(x => x.CreatedOn)
