@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Movies;
+using CinemaTicket.Infrastructure.Helpers;
 
 namespace CinemaTicket.WebApi.Controllers
 {
@@ -41,6 +42,12 @@ namespace CinemaTicket.WebApi.Controllers
         public async Task<List<MovieListElement>> GetGenreListAsync()
         {
             return await movieService.GetListAsync();
+        }
+        [HttpPost]
+        [Route("GetPage")]
+        public async Task<Page<MoviePageView>> GetPageAsync(MovieSearchRequest movieSearch)
+        {
+            return await movieService.GetPageAsync(movieSearch);
         }
     }
 }

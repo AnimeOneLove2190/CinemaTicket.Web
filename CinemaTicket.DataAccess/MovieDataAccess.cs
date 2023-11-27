@@ -6,7 +6,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using CinemaTicket.Entities;
 using CinemaTicket.DataAccess.Interfaces;
-
+using CinemaTicket.Infrastructure.Helpers;
+using CinemaTicket.DataTransferObjects.Movies;
 namespace CinemaTicket.DataAccess
 {
     public class MovieDataAccess : IMovieDataAccess
@@ -25,9 +26,9 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Movie> GetMovieAsync(string name) //хуйня, переделать
+        public async Task<List<Movie>> GetMovieListAsync(string name)
         {
-            return await cinemaManagerContext.Movies.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+            return await cinemaManagerContext.Movies.Include(x => x.Genres).Where(x => name.ToLower().Contains(x.Name.ToLower())).AsNoTracking().ToListAsync();
         }
         public async Task<List<Movie>> GetMovieListAsync()
         {
@@ -40,14 +41,51 @@ namespace CinemaTicket.DataAccess
         public async Task UpdateMovieAsync(Movie movie)
         {
             movie.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(movie).State = EntityState.Modified; // Помогает решить проблему, если сущность получена как AsNoTracking, аналогично для Deleted
+            cinemaManagerContext.Entry(movie).State = EntityState.Modified;
             await cinemaManagerContext.SaveChangesAsync();
         }
         public async Task DeleteMovieAsync(Movie movie)
         {
-            cinemaManagerContext.Entry(movie).State = EntityState.Deleted; // Помогает решить проблему, если сущность получена как AsNoTracking, аналогично для Deleted
+            cinemaManagerContext.Entry(movie).State = EntityState.Deleted;
             cinemaManagerContext.Remove(movie);
             await cinemaManagerContext.SaveChangesAsync();
+        }
+        public async Task<Page<Movie>> GetPageAsync(MovieSearchRequest movieSearchRequest)
+        {
+            var query = cinemaManagerContext.Movies.Include(x => x.Genres).AsQueryable();
+            if (!string.IsNullOrEmpty(movieSearchRequest.MovieName) || !string.IsNullOrWhiteSpace(movieSearchRequest.MovieName))
+            {
+                query = query.Where(x => x.Name.ToLower().Contains(movieSearchRequest.MovieName.ToLower()));
+            }
+            if (!string.IsNullOrEmpty(movieSearchRequest.Description) || !string.IsNullOrWhiteSpace(movieSearchRequest.Description))
+            {
+                query = query.Where(x => x.Description.ToLower().Contains(movieSearchRequest.Description.ToLower()));
+            }
+            if (movieSearchRequest.MinDuration.HasValue)
+            {
+                query = query.Where(x => x.Duration >= movieSearchRequest.MinDuration);
+            }
+            if (movieSearchRequest.MaxDuration.HasValue)
+            {
+                query = query.Where(x => x.Duration <= movieSearchRequest.MaxDuration);
+            }
+            if (movieSearchRequest.GenreIds.Count > 0)
+            {
+                query = query.Where(x => x.Genres.Any(g => movieSearchRequest.GenreIds.Contains(g.Id)));
+            }
+            var items = await query
+                .OrderBy(x => x.CreatedOn)
+                .Skip(movieSearchRequest.PageNumber * movieSearchRequest.PageSize)
+                .Take(movieSearchRequest.PageSize)
+                .ToListAsync();
+            var total = await query.CountAsync();
+            return new Page<Movie>
+            {
+                Items = items,
+                PageNumber = movieSearchRequest.PageNumber,
+                PageSize = movieSearchRequest.PageSize,
+                Total = total,
+            };
         }
     }
 }
