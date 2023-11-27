@@ -36,7 +36,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            var genreFromDB = genreDataAccess.GetGenreAsync(genreCreate.Name);
+            var genreFromDB = await genreDataAccess.GetGenreAsync(genreCreate.Name);
             if (genreFromDB != null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Genre), genreCreate.Name);
@@ -51,6 +51,7 @@ namespace CinemaTicket.BusinessLogicServices
                 ModifiedOn = DateTime.Now
             };
             await genreDataAccess.CreateAsync(genre);
+            await genreDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(GenreUpdate genreUpdate)
         {
@@ -76,7 +77,8 @@ namespace CinemaTicket.BusinessLogicServices
             genreFromDB.Name = genreUpdate.Name;
             genreFromDB.Description = genreUpdate.Description;
             genreFromDB.ModifiedOn = DateTime.Now;
-            await genreDataAccess.UpdateGenreAsync(genreFromDB);
+            genreDataAccess.Update(genreFromDB);
+            await genreDataAccess.CommitAsync();
         }
         public async Task<GenreDetails> GetAsync(int id)
         {
@@ -120,7 +122,8 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            await genreDataAccess.DeleteGenreAsync(genreFromDB);
+            genreDataAccess.Delete(genreFromDB);
+            await genreDataAccess.CommitAsync();
         }
     }
 }

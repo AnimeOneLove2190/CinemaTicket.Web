@@ -89,7 +89,7 @@ namespace CinemaTicket.BusinessLogicServices
                     Movies = new List<Movie> { movie }
                 }).ToList();
                 await movieDataAccess.CreateAsync(movie);
-                await genreDataAccess.CreateAsync(genres);
+                await genreDataAccess.CreateListAsync(genres);
             }
         }
         public async Task UpdateAsync(MovieUpdate movieUpdate)

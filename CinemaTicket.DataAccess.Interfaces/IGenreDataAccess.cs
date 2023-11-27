@@ -7,15 +7,11 @@ using CinemaTicket.Entities;
 
 namespace CinemaTicket.DataAccess.Interfaces
 {
-    public interface IGenreDataAccess
+    public interface IGenreDataAccess : IBaseDataAccess
     {
-        Task CreateAsync(Genre genre);
-        Task CreateAsync(List<Genre> genres);
         Task<Genre> GetGenreAsync(int id);
         Task<Genre> GetGenreAsync(string name);
         Task<List<Genre>> GetGenreListAsync();
         Task<List<Genre>> GetGenreListAsync(List<int> genreIds);
-        Task UpdateGenreAsync(Genre genre);
-        Task DeleteGenreAsync(Genre genre);
     }
 }

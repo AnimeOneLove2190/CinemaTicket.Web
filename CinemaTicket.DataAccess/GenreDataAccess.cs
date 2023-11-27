@@ -9,28 +9,17 @@ using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.DataAccess
 {
-    public class GenreDataAccess : IGenreDataAccess
+    public class GenreDataAccess : BaseDataAccess, IGenreDataAccess
     {
-        private readonly CinemaManagerContext cinemaManagerContext;
-        public GenreDataAccess(CinemaManagerContext cinemaManagerContext)
+        public GenreDataAccess(CinemaManagerContext cinemaManagerContext) : base(cinemaManagerContext)
         {
-            this.cinemaManagerContext = cinemaManagerContext;
-        }
-        public async Task CreateAsync(Genre genre)
-        {
-            await cinemaManagerContext.Genres.AddAsync(genre);
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task CreateAsync(List<Genre> genres)
-        {
-            await cinemaManagerContext.Genres.AddRangeAsync(genres);
-            await cinemaManagerContext.SaveChangesAsync();
+
         }
         public async Task<Genre> GetGenreAsync(int id)
         {
             return await cinemaManagerContext.Genres.Include(x => x.Movies).FirstOrDefaultAsync(x => x.Id == id);
         }
-        public async Task<Genre> GetGenreAsync(string name) // имеет право на существование, можно не переделывать
+        public async Task<Genre> GetGenreAsync(string name)
         {
             return await cinemaManagerContext.Genres.Include(x => x.Movies).FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
         }
@@ -41,18 +30,6 @@ namespace CinemaTicket.DataAccess
         public async Task<List<Genre>> GetGenreListAsync(List<int> genreIds)
         {
             return await cinemaManagerContext.Genres.Include(x => x.Movies).Where(x => genreIds.Contains(x.Id)).ToListAsync();
-        }
-        public async Task UpdateGenreAsync(Genre genre)
-        {
-            genre.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(genre).State = EntityState.Modified; // Что это за команда?
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task DeleteGenreAsync(Genre genre)
-        {
-            cinemaManagerContext.Entry(genre).State = EntityState.Deleted; // Что это за команда?
-            cinemaManagerContext.Remove(genre);
-            await cinemaManagerContext.SaveChangesAsync();
         }
     }
 }
