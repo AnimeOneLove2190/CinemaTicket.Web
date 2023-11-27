@@ -71,7 +71,7 @@ namespace CinemaTicket.DataAccess
             }
             if (movieSearchRequest.GenreIds.Count > 0)
             {
-                query = query.Where(x => movieSearchRequest.GenreIds.All(g => x.Genres.Select(dbg => dbg.Id).Contains(g)));
+                query = query.Where(x => x.Genres.Any(g => movieSearchRequest.GenreIds.Contains(g.Id)));
             }
             var items = await query
                 .OrderBy(x => x.CreatedOn)
