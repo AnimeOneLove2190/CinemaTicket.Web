@@ -29,5 +29,17 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Accounts.FirstOrDefaultAsync(x => x.Email.ToLower() == email.ToLower()) != null;
         }
+        public async Task<Account> GetAccountAsync(string login)
+        {
+            return await cinemaManagerContext.Accounts.Include(x => x.Role).FirstOrDefaultAsync(x => x.Login == login);
+        }
+        public async Task<Account> GetAccountAsync(Guid id)
+        {
+            return await cinemaManagerContext.Accounts.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
+        }
+        public async Task<List<Account>> GetAccountListAsync()
+        {
+            return await cinemaManagerContext.Accounts.Include(x => x.Role).ToListAsync();
+        }
     }
 }
