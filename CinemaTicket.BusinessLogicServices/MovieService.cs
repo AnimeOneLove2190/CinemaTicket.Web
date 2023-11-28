@@ -67,6 +67,7 @@ namespace CinemaTicket.BusinessLogicServices
                 ModifiedOn = DateTime.Now,
                 Genres = new List<Genre>()
             };
+            await movieDataAccess.CreateAsync(movie);
             var genresFromDB = await genreDataAccess.GetGenreListAsync();
             var genreNamesFromDB = genresFromDB.Select(x => x.Name).ToList();
             var needAddGenres = new List<string>();
@@ -88,9 +89,9 @@ namespace CinemaTicket.BusinessLogicServices
                     ModifiedOn = DateTime.Now,
                     Movies = new List<Movie> { movie }
                 }).ToList();
-                await movieDataAccess.CreateAsync(movie);
                 await genreDataAccess.CreateListAsync(genres);
             }
+            await movieDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(MovieUpdate movieUpdate)
         {
@@ -135,7 +136,8 @@ namespace CinemaTicket.BusinessLogicServices
             movieFromDB.Description = movieUpdate.Description;
             movieFromDB.Duration = movieUpdate.Duration;
             movieFromDB.ModifiedOn = DateTime.Now;
-            await movieDataAccess.UpdateMovieAsync(movieFromDB);
+            movieDataAccess.Update(movieFromDB);
+            await movieDataAccess.CommitAsync();
         }
         private async Task SetMovieGenreAsync(List<int> genreIds, Movie movie)
         {

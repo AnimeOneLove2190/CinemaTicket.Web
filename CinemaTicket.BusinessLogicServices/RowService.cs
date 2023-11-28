@@ -83,10 +83,11 @@ namespace CinemaTicket.BusinessLogicServices
                         Number = rowCreate.PlacesNumbers[i],
                         CreatedOn = DateTime.Now,
                         ModifiedOn = DateTime.Now,
-                        RowId = row.Id
+                        Row = row
                     });
                 }
-                await placeDataAccess.CreateAsync(places);
+                await placeDataAccess.CreateListAsync(places);
+                await rowDataAccess.CommitAsync();
             }
         }
         public async Task UpdateAsync(RowUpdate rowUpdate)
@@ -167,7 +168,7 @@ namespace CinemaTicket.BusinessLogicServices
             if (removePlacesNumbers != null && removePlacesNumbers.Count > 0)
             {
                 var removePlaces = rowFromDB.Places.Where(x => removePlacesNumbers.Contains(x.Number)).ToList();
-                await placeDataAccess.DeletePlaceListAsync(removePlaces);
+                placeDataAccess.DeleteList(removePlaces);
             }
             if (createPlaceNumbers != null && createPlaceNumbers.Count > 0)
             {
@@ -183,12 +184,13 @@ namespace CinemaTicket.BusinessLogicServices
                         RowId = rowFromDB.Id,
                     });
                 }
-                await placeDataAccess.CreateAsync(createPlaces);
+                await placeDataAccess.CreateListAsync(createPlaces);
             }
             rowFromDB.Number = rowUpdate.Number;
             rowFromDB.ModifiedOn = DateTime.UtcNow;
             rowFromDB.HallId = rowUpdate.HallId;
-            await rowDataAccess.UpdateRowAsync(rowFromDB);
+            rowDataAccess.Update(rowFromDB);
+            await rowDataAccess.CommitAsync();
         }
         public async Task<RowDetails> GetAsync(int id)
         {
@@ -259,7 +261,8 @@ namespace CinemaTicket.BusinessLogicServices
                     }
                 }
             }
-            await rowDataAccess.DeleteRowAsync(rowFromDB);
+            rowDataAccess.Delete(rowFromDB);
+            await rowDataAccess.CommitAsync();
         }
     }
 }

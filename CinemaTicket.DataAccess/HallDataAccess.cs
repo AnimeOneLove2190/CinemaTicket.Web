@@ -9,22 +9,11 @@ using CinemaTicket.Entities;
 
 namespace CinemaTicket.DataAccess
 {
-    public class HallDataAccess : IHallDataAccess
+    public class HallDataAccess : BaseDataAccess, IHallDataAccess
     {
-        private readonly CinemaManagerContext cinemaManagerContext;
-        public HallDataAccess(CinemaManagerContext cinemaManagerContext)
+        public HallDataAccess(CinemaManagerContext cinemaManagerContext) : base(cinemaManagerContext)
         {
-            this.cinemaManagerContext = cinemaManagerContext;
-        }
-        public async Task CreateAsync(Hall hall)
-        {
-            await cinemaManagerContext.Halls.AddAsync(hall);
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task CreateAsync(List<Hall> halls)
-        {
-            await cinemaManagerContext.Halls.AddRangeAsync(halls);
-            await cinemaManagerContext.SaveChangesAsync();
+
         }
         public async Task<Hall> GetHallAsync(int id)
         {
@@ -41,18 +30,6 @@ namespace CinemaTicket.DataAccess
         public async Task<List<Hall>> GetHallListAsync(List<int> hallIds)
         {
             return await cinemaManagerContext.Halls.Include(x => x.Rows).Include(x => x.Sessions).Where(x => hallIds.Contains(x.Id)).ToListAsync(); //TODO И тут ещё 
-        }
-        public async Task UpdateHallAsync(Hall hall)
-        {
-            hall.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(hall).State = EntityState.Modified;
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task DeleteHallAsync(Hall hall)
-        {
-            cinemaManagerContext.Entry(hall).State = EntityState.Deleted;
-            cinemaManagerContext.Remove(hall);
-            await cinemaManagerContext.SaveChangesAsync();
         }
     }
 }

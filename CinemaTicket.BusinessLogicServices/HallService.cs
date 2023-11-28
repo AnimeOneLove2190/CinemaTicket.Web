@@ -53,11 +53,12 @@ namespace CinemaTicket.BusinessLogicServices
                         Number = hallCreate.RowsNumbers[i],
                         CreatedOn = DateTime.Now,
                         ModifiedOn = DateTime.Now,
-                        HallId = hall.Id
+                        Hall = hall
                     });
                 }
-                await rowDataAccess.CreateAsync(rows);
+                await rowDataAccess.CreateListAsync(rows);
             }
+            await hallDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(HallUpdate hallUpdate)
         {
@@ -110,7 +111,7 @@ namespace CinemaTicket.BusinessLogicServices
             if (removeRowsNumbers != null && removeRowsNumbers.Count > 0)
             {
                 var removeRows = hallFromDB.Rows.Where(x => removeRowsNumbers.Contains(x.Number)).ToList();
-                await rowDataAccess.DeleteRowListAsync(removeRows);
+                rowDataAccess.DeleteList(removeRows);
             }
             if (createRowsNumbers != null && createRowsNumbers.Count > 0)
             {
@@ -125,11 +126,12 @@ namespace CinemaTicket.BusinessLogicServices
                         HallId = hallFromDB.Id,
                     });
                 }
-                await rowDataAccess.CreateAsync(createRows);
+                await rowDataAccess.CreateListAsync(createRows);
             }
             hallFromDB.Name = hallUpdate.Name;
             hallFromDB.ModifiedOn = DateTime.UtcNow;
-            await hallDataAccess.UpdateHallAsync(hallFromDB);
+            hallDataAccess.Update(hallFromDB);
+            await hallDataAccess.CommitAsync();
         }
         public async Task<HallDetails> GetAsync(int id)
         {
@@ -197,7 +199,8 @@ namespace CinemaTicket.BusinessLogicServices
                     }
                 }
             }
-            await hallDataAccess.DeleteHallAsync(hallFromDB);
+            hallDataAccess.Delete(hallFromDB);
+            await hallDataAccess.CommitAsync();
         }
     }
 }

@@ -8,15 +8,12 @@ using CinemaTicket.DataTransferObjects.Movies;
 
 namespace CinemaTicket.DataAccess.Interfaces
 {
-    public interface IMovieDataAccess
+    public interface IMovieDataAccess : IBaseDataAccess
     {
-        Task CreateAsync(Movie movie);
         Task<Movie> GetMovieAsync(int id);
         Task<List<Movie>> GetMovieListAsync(string name);
         Task<List<Movie>> GetMovieListAsync();
         Task<List<Movie>> GetMovieListAsync(List<int> movieIds);
-        Task UpdateMovieAsync(Movie movie);
-        Task DeleteMovieAsync(Movie movie);
         Task<Page<Movie>> GetPageAsync(MovieSearchRequest movieSearchRequest);
     }
 }

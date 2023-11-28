@@ -9,22 +9,11 @@ using CinemaTicket.Entities;
 
 namespace CinemaTicket.DataAccess
 {
-    public class RowDataAccess : IRowDataAccess
+    public class RowDataAccess : BaseDataAccess, IRowDataAccess
     {
-        private readonly CinemaManagerContext cinemaManagerContext;
-        public RowDataAccess(CinemaManagerContext cinemaManagerContext)
+        public RowDataAccess(CinemaManagerContext cinemaManagerContext) : base(cinemaManagerContext)
         {
-            this.cinemaManagerContext = cinemaManagerContext;
-        }
-        public async Task CreateAsync(Row row)
-        {
-            await cinemaManagerContext.Rows.AddAsync(row);
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task CreateAsync(List<Row> rows)
-        {
-            await cinemaManagerContext.Rows.AddRangeAsync(rows);
-            await cinemaManagerContext.SaveChangesAsync();
+
         }
         public async Task<Row> GetRowAsync(int id)
         {
@@ -37,27 +26,6 @@ namespace CinemaTicket.DataAccess
         public async Task<List<Row>> GetRowListAsync(List<int> rowIds)
         {
             return await cinemaManagerContext.Rows.Include(x => x.Places).Where(x => rowIds.Contains(x.Id)).ToListAsync();
-        }
-        public async Task UpdateRowAsync(Row row)
-        {
-            row.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(row).State = EntityState.Modified;
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task DeleteRowAsync(Row row)
-        {
-            cinemaManagerContext.Entry(row).State = EntityState.Deleted;
-            cinemaManagerContext.Remove(row);
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task DeleteRowListAsync(List<Row> rows)
-        {
-            foreach (var row in rows)
-            {
-                cinemaManagerContext.Entry(row).State = EntityState.Deleted;
-            }
-            cinemaManagerContext.RemoveRange(rows);
-            await cinemaManagerContext.SaveChangesAsync();
         }
     }
 }
