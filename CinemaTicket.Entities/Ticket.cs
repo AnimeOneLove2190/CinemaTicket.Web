@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CinemaTicket.Entities
 {
@@ -16,5 +17,11 @@ namespace CinemaTicket.Entities
         public Place Place { get; set; }
         public int SessionId { get; set; }
         public Session Session { get; set; }
+        public Guid CreatedBy { get; set; }
+        [ForeignKey("CreatedBy")]
+        public Account CreatedByUser { get; set; }
+        public Guid ModifiedBy { get; set; }
+        [ForeignKey("ModifiedBy")]
+        public Account ModifiedByUser { get; set; }
     }
 }
