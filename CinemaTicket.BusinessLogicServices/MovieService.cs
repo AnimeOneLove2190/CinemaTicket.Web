@@ -18,15 +18,18 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IMovieDataAccess movieDataAccess;
         private readonly IGenreDataAccess genreDataAccess;
+        private readonly IAccountService accountService;
         private readonly ILogger<MovieService> logger;
-        public MovieService(IMovieDataAccess movieDataAccess, IGenreDataAccess genreDataAccess, ILogger<MovieService> logger)
+        public MovieService(IMovieDataAccess movieDataAccess, IGenreDataAccess genreDataAccess, ILogger<MovieService> logger, IAccountService accountService)
         {
             this.movieDataAccess = movieDataAccess;
             this.genreDataAccess = genreDataAccess;
+            this.accountService = accountService;
             this.logger = logger;
         }
         public async Task CreateAsync(MovieCreate movieCreate) 
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (string.IsNullOrEmpty(movieCreate.Name) || string.IsNullOrWhiteSpace(movieCreate.Name))
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieCreate.Name));
@@ -65,6 +68,8 @@ namespace CinemaTicket.BusinessLogicServices
                 Duration = movieCreate.Duration,
                 CreatedOn = DateTime.Now,
                 ModifiedOn = DateTime.Now,
+                CreatedBy = currentUser.Id,
+                ModifiedBy = currentUser.Id,
                 Genres = new List<Genre>()
             };
             await movieDataAccess.CreateAsync(movie);
@@ -87,6 +92,8 @@ namespace CinemaTicket.BusinessLogicServices
                     Name = x,
                     CreatedOn = DateTime.Now,
                     ModifiedOn = DateTime.Now,
+                    CreatedBy = currentUser.Id,
+                    ModifiedBy = currentUser.Id,
                     Movies = new List<Movie> { movie }
                 }).ToList();
                 await genreDataAccess.CreateListAsync(genres);
@@ -95,6 +102,7 @@ namespace CinemaTicket.BusinessLogicServices
         }
         public async Task UpdateAsync(MovieUpdate movieUpdate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (string.IsNullOrEmpty(movieUpdate.Name) || string.IsNullOrWhiteSpace(movieUpdate.Name))
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieUpdate.Name));
@@ -136,11 +144,14 @@ namespace CinemaTicket.BusinessLogicServices
             movieFromDB.Description = movieUpdate.Description;
             movieFromDB.Duration = movieUpdate.Duration;
             movieFromDB.ModifiedOn = DateTime.Now;
+            movieFromDB.ModifiedBy = currentUser.Id;
             movieDataAccess.Update(movieFromDB);
             await movieDataAccess.CommitAsync();
         }
         private async Task SetMovieGenreAsync(List<int> genreIds, Movie movie)
         {
+            var currentUser = await accountService.GetAccountAsync();
+
             var genres = await genreDataAccess.GetGenreListAsync(genreIds);
             if (genres.Count != genreIds.Count)
             {
@@ -157,11 +168,13 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 movie.Genres.Remove(genre);
                 genre.ModifiedOn = DateTime.Now;
+                genre.ModifiedBy = currentUser.Id;
             }
             foreach (var genre in newGenres)
             {
                 movie.Genres.Add(genre);
                 genre.ModifiedOn = DateTime.UtcNow;
+                genre.ModifiedBy = currentUser.Id;
             }
         }
         public async Task<MovieDetails> GetAsync(int id)

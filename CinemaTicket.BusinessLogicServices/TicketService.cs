@@ -21,6 +21,7 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IPlaceDataAccess placeDataAccess;
         private readonly ITicketDataAccess ticketDataAccess;
         private readonly IRowDataAccess rowDataAccess;
+        private readonly IAccountService accountService;
         private readonly ILogger<TicketService> logger;
         public TicketService(ISessionDataAccess sessionDataAccess,
             IRowDataAccess rowDataAccess, 
@@ -28,6 +29,7 @@ namespace CinemaTicket.BusinessLogicServices
             IMovieDataAccess movieDataAccess, 
             ITicketDataAccess ticketDataAccess, 
             IHallDataAccess hallDataAccess,
+            IAccountService accountService,
             ILogger<TicketService> logger)
         {
             this.hallDataAccess = hallDataAccess;
@@ -36,12 +38,15 @@ namespace CinemaTicket.BusinessLogicServices
             this.placeDataAccess = placeDataAccess;
             this.ticketDataAccess = ticketDataAccess;
             this.rowDataAccess = rowDataAccess;
+            this.accountService = accountService;
             this.logger = logger;
         }
         public async Task CreateAsync(TicketCreate ticketCreate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (ticketCreate == null)
             {
+
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(TicketCreate));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
@@ -80,6 +85,8 @@ namespace CinemaTicket.BusinessLogicServices
                 Price = ticketCreate.Price,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow,
+                CreatedBy = currentUser.Id,
+                ModifiedBy = currentUser.Id,
                 PlaceId = ticketCreate.PlaceId,
                 SessionId = ticketCreate.SessionId,
             };
@@ -88,6 +95,7 @@ namespace CinemaTicket.BusinessLogicServices
         }
         public async Task UpdateAsync(TicketUpdate ticketUpdate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (ticketUpdate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(TicketUpdate));
@@ -147,6 +155,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             ticketFromDB.Price = ticketUpdate.Price;
             ticketFromDB.ModifiedOn = DateTime.UtcNow;
+            ticketFromDB.ModifiedBy = currentUser.Id;
             ticketFromDB.PlaceId = ticketUpdate.PlaceId;
             ticketFromDB.SessionId = ticketUpdate.SessionId;
             ticketDataAccess.Update(ticketFromDB);
@@ -278,6 +287,7 @@ namespace CinemaTicket.BusinessLogicServices
         }
         public async Task SellTickets(List<int> ticketsIds)
         {
+            var currentUser = await accountService.GetAccountAsync();
             var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
             if (ticketsFromDB == null)
             {
@@ -297,6 +307,7 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 ticketsToUpdate[i].IsSold = true;
                 ticketsToUpdate[i].ModifiedOn = DateTime.UtcNow;
+                ticketsToUpdate[i].ModifiedBy = currentUser.Id;
             }
             ticketDataAccess.UpdateList(ticketsToUpdate);
             await ticketDataAccess.CommitAsync();

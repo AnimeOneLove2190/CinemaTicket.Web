@@ -18,17 +18,20 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IHallDataAccess hallDataAccess;
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
+        private readonly IAccountService accountService;
         private readonly ILogger<RowService> logger;
 
-        public RowService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<RowService> logger)
+        public RowService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<RowService> logger, IAccountService accountService)
         {
             this.hallDataAccess = hallDataAccess;
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
+            this.accountService = accountService;
             this.logger = logger;
         }
         public async Task CreateAsync(RowCreate rowCreate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (rowCreate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(RowCreate));
@@ -70,6 +73,8 @@ namespace CinemaTicket.BusinessLogicServices
                 HallId = rowCreate.HallId,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow,
+                CreatedBy = currentUser.Id,
+                ModifiedBy = currentUser.Id,
             };
             await rowDataAccess.CreateAsync(row);
             if (rowCreate.PlacesNumbers != null && rowCreate.PlacesNumbers.Count > 0)
@@ -83,15 +88,18 @@ namespace CinemaTicket.BusinessLogicServices
                         Number = rowCreate.PlacesNumbers[i],
                         CreatedOn = DateTime.Now,
                         ModifiedOn = DateTime.Now,
+                        CreatedBy = currentUser.Id,
+                        ModifiedBy = currentUser.Id,
                         Row = row
                     });
                 }
                 await placeDataAccess.CreateListAsync(places);
-                await rowDataAccess.CommitAsync();
             }
+            await rowDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(RowUpdate rowUpdate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (rowUpdate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(RowUpdate));
@@ -181,6 +189,8 @@ namespace CinemaTicket.BusinessLogicServices
                         Capacity = 1,
                         CreatedOn = DateTime.UtcNow,
                         ModifiedOn = DateTime.UtcNow,
+                        CreatedBy = currentUser.Id,
+                        ModifiedBy = currentUser.Id,
                         RowId = rowFromDB.Id,
                     });
                 }
@@ -188,6 +198,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             rowFromDB.Number = rowUpdate.Number;
             rowFromDB.ModifiedOn = DateTime.UtcNow;
+            rowFromDB.ModifiedBy = currentUser.Id;
             rowFromDB.HallId = rowUpdate.HallId;
             rowDataAccess.Update(rowFromDB);
             await rowDataAccess.CommitAsync();

@@ -19,16 +19,19 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IHallDataAccess hallDataAccess;
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
+        private readonly IAccountService accountService;
         private readonly ILogger<HallService> logger;
-        public HallService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<HallService> logger)
+        public HallService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<HallService> logger, IAccountService accountService)
         {
             this.hallDataAccess = hallDataAccess;
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
+            this.accountService = accountService;
             this.logger = logger;
         }
         public async Task CreateAsync(HallCreate hallCreate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (hallCreate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(HallCreate));
@@ -40,6 +43,8 @@ namespace CinemaTicket.BusinessLogicServices
                 Name = hallCreate.Name,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow,
+                CreatedBy = currentUser.Id,
+                ModifiedBy = currentUser.Id
             };
             await hallDataAccess.CreateAsync(hall);
             if (hallCreate.RowsNumbers != null && hallCreate.RowsNumbers.Count > 0)
@@ -53,7 +58,9 @@ namespace CinemaTicket.BusinessLogicServices
                         Number = hallCreate.RowsNumbers[i],
                         CreatedOn = DateTime.Now,
                         ModifiedOn = DateTime.Now,
-                        Hall = hall
+                        Hall = hall,
+                        CreatedBy = currentUser.Id,
+                        ModifiedBy = currentUser.Id
                     });
                 }
                 await rowDataAccess.CreateListAsync(rows);
@@ -62,6 +69,7 @@ namespace CinemaTicket.BusinessLogicServices
         }
         public async Task UpdateAsync(HallUpdate hallUpdate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (hallUpdate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(HallUpdate));
@@ -124,12 +132,15 @@ namespace CinemaTicket.BusinessLogicServices
                         CreatedOn = DateTime.UtcNow,
                         ModifiedOn = DateTime.UtcNow,
                         HallId = hallFromDB.Id,
+                        CreatedBy = currentUser.Id,
+                        ModifiedBy = currentUser.Id
                     });
                 }
                 await rowDataAccess.CreateListAsync(createRows);
             }
             hallFromDB.Name = hallUpdate.Name;
             hallFromDB.ModifiedOn = DateTime.UtcNow;
+            hallFromDB.ModifiedBy = currentUser.Id;
             hallDataAccess.Update(hallFromDB);
             await hallDataAccess.CommitAsync();
         }
