@@ -16,14 +16,17 @@ namespace CinemaTicket.BusinessLogicServices
     public class GenreService : IGenreService
     {
         private readonly IGenreDataAccess genreDataAccess;
+        private readonly IAccountService accountService;
         private readonly ILogger<GenreService> logger;
-        public GenreService(IGenreDataAccess genreDataAccess, ILogger<GenreService> logger)
+        public GenreService(IGenreDataAccess genreDataAccess, ILogger<GenreService> logger, IAccountService accountService)
         {
             this.genreDataAccess = genreDataAccess;
+            this.accountService = accountService;
             this.logger = logger;
         }
         public async Task CreateAsync(GenreCreate genreCreate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (genreCreate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(GenreCreate));
@@ -48,13 +51,16 @@ namespace CinemaTicket.BusinessLogicServices
                 Name = genreCreate.Name,
                 Description = genreCreate.Description,
                 CreatedOn = DateTime.Now,
-                ModifiedOn = DateTime.Now
+                ModifiedOn = DateTime.Now,
+                CreatedBy = currentUser.Id,
+                ModifiedBy = currentUser.Id
             };
             await genreDataAccess.CreateAsync(genre);
             await genreDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(GenreUpdate genreUpdate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (genreUpdate.Id <= 0)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(GenreUpdate), nameof(genreUpdate.Id));
@@ -77,6 +83,7 @@ namespace CinemaTicket.BusinessLogicServices
             genreFromDB.Name = genreUpdate.Name;
             genreFromDB.Description = genreUpdate.Description;
             genreFromDB.ModifiedOn = DateTime.Now;
+            genreFromDB.ModifiedBy = currentUser.Id;
             genreDataAccess.Update(genreFromDB);
             await genreDataAccess.CommitAsync();
         }
