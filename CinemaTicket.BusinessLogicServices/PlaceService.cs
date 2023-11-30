@@ -144,7 +144,8 @@ namespace CinemaTicket.BusinessLogicServices
             placeFromDB.Capacity = placeUpdate.Capacity;
             placeFromDB.ModifiedOn = DateTime.UtcNow;
             placeFromDB.RowId = placeFromDB.RowId;
-            await placeDataAccess.UpdatePlaceAsync(placeFromDB);
+            placeDataAccess.Update(placeFromDB);
+            await placeDataAccess.CommitAsync();
         }
         public async Task<PlaceDetails> GetAsync(int id)
         {
@@ -209,7 +210,8 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            await placeDataAccess.DeletePlaceAsync(placeFromDB);
+            placeDataAccess.Delete(placeFromDB);
+            await placeDataAccess.CommitAsync();
         }
     }
 }

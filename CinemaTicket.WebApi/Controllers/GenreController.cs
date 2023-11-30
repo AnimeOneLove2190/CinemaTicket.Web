@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,12 +21,14 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("AddGenre")]
+        [Authorize]
         public async Task CreateGenreAsync(GenreCreate genreCreate)
         {
             await genreService.CreateAsync(genreCreate);
         }
         [HttpPost]
         [Route("UpdateGenre")]
+        [Authorize]
         public async Task UpdateGenreAsync(GenreUpdate genreUpdate)
         {
             await genreService.UpdateAsync(genreUpdate);
@@ -44,6 +47,7 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("DeleteGenre")]
+        [Authorize]
         public async Task DeleteGenreAsync(int id)
         {
             await genreService.DeleteAsync(id);

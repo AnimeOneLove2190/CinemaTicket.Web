@@ -107,10 +107,11 @@ namespace CinemaTicket.BusinessLogicServices
                     CreatedOn = DateTime.UtcNow,
                     ModifiedOn = DateTime.UtcNow,
                     PlaceId = placesInHall[i].Id,
-                    SessionId = session.Id
+                    Session = session
                 });
             }
-            await ticketDataAccess.CreateAsync(ticketsInHall);
+            await ticketDataAccess.CreateListAsync(ticketsInHall);
+            await ticketDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(SessionUpdate sessionUpdate)
         {
@@ -181,9 +182,9 @@ namespace CinemaTicket.BusinessLogicServices
             if (sessionFromDB.HallId != sessionUpdate.HallId)
             {
                 var deleteTickets = sessionFromDB.Tickets.ToList();
-                await ticketDataAccess.DeleteTicketListAsync(deleteTickets);
+                ticketDataAccess.DeleteList(deleteTickets);
             }
-            await sessionDataAccess.UpdateSessionAsync(sessionFromDB);
+            sessionDataAccess.Update(sessionFromDB);
             var ticketsInHall = new List<Ticket>();
             for (int i = 0; i < placesInHall.Count; i++)
             {
@@ -195,10 +196,11 @@ namespace CinemaTicket.BusinessLogicServices
                     CreatedOn = DateTime.UtcNow,
                     ModifiedOn = DateTime.UtcNow,
                     PlaceId = placesInHall[i].Id,
-                    SessionId = sessionFromDB.Id
+                    Session = sessionFromDB
                 });
             }
-            await ticketDataAccess.CreateAsync(ticketsInHall);
+            await ticketDataAccess.CreateListAsync(ticketsInHall);
+            await sessionDataAccess.CommitAsync();
         }
         public async Task<SessionDetails> GetAsync(int id)
         {
@@ -263,7 +265,8 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            await sessionDataAccess.DeleteSessionAsync(sessionFromDB);
+            sessionDataAccess.Delete(sessionFromDB);
+            await sessionDataAccess.CommitAsync();
         }
         public async Task<List<SeansView>> GetSeansViewList(DateTime? start, DateTime? end)
         {

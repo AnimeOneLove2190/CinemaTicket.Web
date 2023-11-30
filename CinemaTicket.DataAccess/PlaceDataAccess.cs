@@ -9,22 +9,11 @@ using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.DataAccess
 {
-    public class PlaceDataAccess : IPlaceDataAccess
+    public class PlaceDataAccess : BaseDataAccess, IPlaceDataAccess
     {
-        private readonly CinemaManagerContext cinemaManagerContext;
-        public PlaceDataAccess(CinemaManagerContext cinemaManagerContext)
+        public PlaceDataAccess(CinemaManagerContext cinemaManagerContext) : base(cinemaManagerContext)
         {
-            this.cinemaManagerContext = cinemaManagerContext;
-        }
-        public async Task CreateAsync(Place place)
-        {
-            await cinemaManagerContext.Places.AddAsync(place);
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task CreateAsync(List<Place> places)
-        {
-            await cinemaManagerContext.Places.AddRangeAsync(places);
-            await cinemaManagerContext.SaveChangesAsync();
+
         }
         public async Task<Place> GetPlaceAsync(int id)
         {
@@ -37,27 +26,6 @@ namespace CinemaTicket.DataAccess
         public async Task<List<Place>> GetPlaceListAsync(List<int> placesIds)
         {
             return await cinemaManagerContext.Places.Include(x => x.Tickets).Where(x => placesIds.Contains(x.Id)).ToListAsync();
-        }
-        public async Task UpdatePlaceAsync(Place place)
-        {
-            place.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(place).State = EntityState.Modified;
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task DeletePlaceAsync(Place place)
-        {
-            cinemaManagerContext.Entry(place).State = EntityState.Deleted;
-            cinemaManagerContext.Remove(place);
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task DeletePlaceListAsync(List<Place> places)
-        {
-            foreach (var place in places)
-            {
-                cinemaManagerContext.Entry(place).State = EntityState.Deleted;
-            }
-            cinemaManagerContext.RemoveRange(places);
-            await cinemaManagerContext.SaveChangesAsync();
         }
     }
 }

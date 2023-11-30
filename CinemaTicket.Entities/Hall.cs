@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CinemaTicket.Entities
 {
-    public class Hall
+    public class Hall : IDbEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -84,6 +84,7 @@ namespace CinemaTicket.BusinessLogicServices
                 SessionId = ticketCreate.SessionId,
             };
             await ticketDataAccess.CreateAsync(ticket);
+            await ticketDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(TicketUpdate ticketUpdate)
         {
@@ -148,7 +149,8 @@ namespace CinemaTicket.BusinessLogicServices
             ticketFromDB.ModifiedOn = DateTime.UtcNow;
             ticketFromDB.PlaceId = ticketUpdate.PlaceId;
             ticketFromDB.SessionId = ticketUpdate.SessionId;
-            await ticketDataAccess.UpdateTicketAsync(ticketFromDB);
+            ticketDataAccess.Update(ticketFromDB);
+            await ticketDataAccess.CommitAsync();
         }
         public async Task<TicketDetails> GetAsync(int id)
         {
@@ -202,7 +204,8 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 throw new Exception();
             }
-            await ticketDataAccess.DeleteTicketAsync(ticketFromDB);
+            ticketDataAccess.Delete(ticketFromDB);
+            await ticketDataAccess.CommitAsync();
         }
         public async Task<List<TicketView>> GetTicketViewList(int sessionId, bool? isSold)
         {
@@ -293,8 +296,11 @@ namespace CinemaTicket.BusinessLogicServices
             for (int i = 0; i < ticketsToUpdate.Count; i++)
             {
                 ticketsToUpdate[i].IsSold = true;
+                ticketsToUpdate[i].ModifiedOn = DateTime.UtcNow;
             }
-            await ticketDataAccess.UpdateTicketListAsync(ticketsToUpdate);
+            ticketDataAccess.UpdateList(ticketsToUpdate);
+            await ticketDataAccess.CommitAsync();
+
         }
         public async Task DeleteTickets(List<int> ticketsIds)
         {
@@ -312,7 +318,8 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            await ticketDataAccess.DeleteTicketListAsync(unsoldTickets);
+            ticketDataAccess.DeleteList(unsoldTickets);
+            await ticketDataAccess.CommitAsync();
         }
     }
 }

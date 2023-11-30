@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("AddPlace")]
+        [Authorize]
         public async Task CreatePlaceAsync(PlaceCreate placeCreate)
         {
             await placeService.CreateAsync(placeCreate);
@@ -37,7 +39,15 @@ namespace CinemaTicket.WebApi.Controllers
             return await placeService.GetListAsync();
         }
         [HttpPost]
+        [Route("UpdatePlace")]
+        [Authorize]
+        public async Task UpdatePlace(PlaceUpdate placeUpdate)
+        {
+            await placeService.UpdateAsync(placeUpdate);
+        }
+        [HttpPost]
         [Route("DeletePlace")]
+        [Authorize]
         public async Task DeletePlaceAsync(int id)
         {
             await placeService.DeleteAsync(id);

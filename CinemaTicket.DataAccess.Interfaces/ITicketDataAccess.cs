@@ -6,16 +6,10 @@ using CinemaTicket.Entities;
 
 namespace CinemaTicket.DataAccess.Interfaces
 {
-    public interface ITicketDataAccess
+    public interface ITicketDataAccess : IBaseDataAccess
     {
-        Task CreateAsync(Ticket ticket);
-        Task CreateAsync(List<Ticket> tickets);
         Task<Ticket> GetTicketAsync(int id);
         Task<List<Ticket>> GetTicketListAsync();
         Task<List<Ticket>> GetTicketListAsync(List<int> ticketsIds);
-        Task UpdateTicketAsync(Ticket ticket);
-        Task UpdateTicketListAsync(List<Ticket> tickets);
-        Task DeleteTicketAsync(Ticket ticket);
-        Task DeleteTicketListAsync(List<Ticket> tickets);
     }
 }

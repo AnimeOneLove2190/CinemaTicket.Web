@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CinemaTicket.Entities
 {
-    public class Ticket
+    public class Ticket : IDbEntity
     {
         public int Id { get; set; }
         public bool IsSold { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,12 +22,14 @@ namespace CinemaTicket.WebApi.Controllers
         }
         [HttpPost]
         [Route("AddMovie")]
+        [Authorize]
         public async Task CreateMovieAsync(MovieCreate movieCreate)
         {
             await movieService.CreateAsync(movieCreate);
         }
         [HttpPost]
         [Route("UpdateMovie")]
+        [Authorize]
         public async Task UpdateMovieAsync(MovieUpdate movieUpdate)
         {
             await movieService.UpdateAsync(movieUpdate);

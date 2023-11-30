@@ -10,17 +10,11 @@ using CinemaTicket.Infrastructure.Helpers;
 using CinemaTicket.DataTransferObjects.Movies;
 namespace CinemaTicket.DataAccess
 {
-    public class MovieDataAccess : IMovieDataAccess
+    public class MovieDataAccess : BaseDataAccess, IMovieDataAccess
     {
-        private readonly CinemaManagerContext cinemaManagerContext;
-        public MovieDataAccess(CinemaManagerContext cinemaManagerContext)
+        public MovieDataAccess(CinemaManagerContext cinemaManagerContext) : base(cinemaManagerContext)
         {
-            this.cinemaManagerContext = cinemaManagerContext;
-        }
-        public async Task CreateAsync(Movie movie)
-        {
-            await cinemaManagerContext.Movies.AddAsync(movie);
-            await cinemaManagerContext.SaveChangesAsync();
+
         }
         public async Task<Movie> GetMovieAsync(int id)
         {
@@ -37,18 +31,6 @@ namespace CinemaTicket.DataAccess
         public async Task<List<Movie>> GetMovieListAsync(List<int> movieIds) // Вдруг пригодится
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).Where(x => movieIds.Contains(x.Id)).ToListAsync();
-        }
-        public async Task UpdateMovieAsync(Movie movie)
-        {
-            movie.ModifiedOn = DateTime.Now;
-            cinemaManagerContext.Entry(movie).State = EntityState.Modified;
-            await cinemaManagerContext.SaveChangesAsync();
-        }
-        public async Task DeleteMovieAsync(Movie movie)
-        {
-            cinemaManagerContext.Entry(movie).State = EntityState.Deleted;
-            cinemaManagerContext.Remove(movie);
-            await cinemaManagerContext.SaveChangesAsync();
         }
         public async Task<Page<Movie>> GetPageAsync(MovieSearchRequest movieSearchRequest)
         {
