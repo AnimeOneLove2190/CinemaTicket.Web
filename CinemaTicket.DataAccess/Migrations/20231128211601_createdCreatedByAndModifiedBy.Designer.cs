@@ -4,14 +4,16 @@ using CinemaTicket.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CinemaTicket.DataAccess.Migrations
 {
     [DbContext(typeof(CinemaManagerContext))]
-    partial class CinemaManagerContextModelSnapshot : ModelSnapshot
+    [Migration("20231128211601_createdCreatedByAndModifiedBy")]
+    partial class createdCreatedByAndModifiedBy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +65,7 @@ namespace CinemaTicket.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
@@ -72,7 +74,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ModifiedBy")
+                    b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -97,13 +99,13 @@ namespace CinemaTicket.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ModifiedBy")
+                    b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -128,7 +130,7 @@ namespace CinemaTicket.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
@@ -140,7 +142,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ModifiedBy")
+                    b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -168,13 +170,13 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.Property<int>("Capacity")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("ModifiedBy")
+                    b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -233,7 +235,7 @@ namespace CinemaTicket.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
@@ -242,7 +244,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.Property<int>("HallId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ModifiedBy")
+                    b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -269,7 +271,7 @@ namespace CinemaTicket.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
@@ -278,7 +280,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.Property<int>("HallId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ModifiedBy")
+                    b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -310,7 +312,7 @@ namespace CinemaTicket.DataAccess.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedOn")
@@ -322,7 +324,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.Property<bool>("IsSold")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("ModifiedBy")
+                    b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ModifiedOn")
@@ -381,14 +383,12 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "CreatedByUser")
                         .WithMany("CreatedGenres")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Account", "ModifiedByUser")
                         .WithMany("ModifiedGenres")
                         .HasForeignKey("ModifiedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreatedByUser");
 
@@ -400,14 +400,12 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "CreatedByUser")
                         .WithMany("CreatedHalls")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Account", "ModifiedByUser")
                         .WithMany("ModifiedHalls")
                         .HasForeignKey("ModifiedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreatedByUser");
 
@@ -419,14 +417,12 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "CreatedByUser")
                         .WithMany("CreatedMovies")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Account", "ModifiedByUser")
                         .WithMany("ModifiedMovies")
                         .HasForeignKey("ModifiedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreatedByUser");
 
@@ -438,14 +434,12 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "CreatedByUser")
                         .WithMany("CreatedPlaces")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Account", "ModifiedByUser")
                         .WithMany("ModifiedPlaces")
                         .HasForeignKey("ModifiedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Row", "Row")
                         .WithMany("Places")
@@ -465,8 +459,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "CreatedByUser")
                         .WithMany("CreatedRows")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Hall", "Hall")
                         .WithMany("Rows")
@@ -477,8 +470,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "ModifiedByUser")
                         .WithMany("ModifiedRows")
                         .HasForeignKey("ModifiedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreatedByUser");
 
@@ -492,8 +484,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "CreatedByUser")
                         .WithMany("CreatedSessions")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Hall", "Hall")
                         .WithMany("Sessions")
@@ -504,8 +495,7 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "ModifiedByUser")
                         .WithMany("ModifiedSessions")
                         .HasForeignKey("ModifiedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Movie", "Movie")
                         .WithMany("Sessions")
@@ -527,14 +517,12 @@ namespace CinemaTicket.DataAccess.Migrations
                     b.HasOne("CinemaTicket.Entities.Account", "CreatedByUser")
                         .WithMany("CreatedTickets")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Account", "ModifiedByUser")
                         .WithMany("ModifiedTickets")
                         .HasForeignKey("ModifiedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CinemaTicket.Entities.Place", "Place")
                         .WithMany("Tickets")

@@ -17,15 +17,18 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
+        private readonly IAccountService accountService;
         private readonly ILogger<PlaceService> logger;
-        public PlaceService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<PlaceService> logger)
+        public PlaceService(IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<PlaceService> logger, IAccountService accountService)
         {
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
+            this.accountService = accountService;
             this.logger = logger;
         }
         public async Task CreateAsync(PlaceCreate placeCreate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (placeCreate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(PlaceCreate));
@@ -74,11 +77,14 @@ namespace CinemaTicket.BusinessLogicServices
                 Capacity = placeCreate.Capacity,
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow,
+                CreatedBy = currentUser.Id,
+                ModifiedBy = currentUser.Id
             };
             await placeDataAccess.CreateAsync(place);
         }
         public async Task UpdateAsync(PlaceUpdate placeUpdate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (placeUpdate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(PlaceUpdate));
@@ -143,6 +149,7 @@ namespace CinemaTicket.BusinessLogicServices
             placeFromDB.Number = placeUpdate.Number;
             placeFromDB.Capacity = placeUpdate.Capacity;
             placeFromDB.ModifiedOn = DateTime.UtcNow;
+            placeFromDB.ModifiedBy = currentUser.Id;
             placeFromDB.RowId = placeFromDB.RowId;
             placeDataAccess.Update(placeFromDB);
             await placeDataAccess.CommitAsync();

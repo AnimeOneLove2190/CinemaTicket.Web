@@ -21,13 +21,15 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IPlaceDataAccess placeDataAccess;
         private readonly IMovieDataAccess movieDataAccess;
         private readonly ITicketDataAccess ticketDataAccess;
+        private readonly IAccountService accountService;
         private readonly ILogger<SessionService> logger;
         public SessionService(ISessionDataAccess sessionDataAccess, 
             IHallDataAccess hallDataAccess, 
             IRowDataAccess rowDataAccess, 
             IPlaceDataAccess placeDataAccess, 
             IMovieDataAccess movieDataAccess, 
-            ITicketDataAccess ticketDataAccess, 
+            ITicketDataAccess ticketDataAccess,
+            IAccountService accountService,
             ILogger<SessionService> logger)
         {
             this.sessionDataAccess = sessionDataAccess;
@@ -36,10 +38,12 @@ namespace CinemaTicket.BusinessLogicServices
             this.placeDataAccess = placeDataAccess;
             this.movieDataAccess = movieDataAccess;
             this.ticketDataAccess = ticketDataAccess;
+            this.accountService = accountService;
             this.logger = logger;
         }
         public async Task CreateAsync(SessionCreate sessionCreate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (sessionCreate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(SessionCreate));
@@ -93,6 +97,8 @@ namespace CinemaTicket.BusinessLogicServices
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow,
                 MovieId = sessionCreate.MovieId,
+                CreatedBy = currentUser.Id,
+                ModifiedBy = currentUser.Id,
                 HallId = sessionCreate.HallId,
             };
             await sessionDataAccess.CreateAsync(session);
@@ -106,6 +112,8 @@ namespace CinemaTicket.BusinessLogicServices
                     Price = sessionCreate.Price,
                     CreatedOn = DateTime.UtcNow,
                     ModifiedOn = DateTime.UtcNow,
+                    CreatedBy = currentUser.Id,
+                    ModifiedBy = currentUser.Id,
                     PlaceId = placesInHall[i].Id,
                     Session = session
                 });
@@ -115,6 +123,7 @@ namespace CinemaTicket.BusinessLogicServices
         }
         public async Task UpdateAsync(SessionUpdate sessionUpdate)
         {
+            var currentUser = await accountService.GetAccountAsync();
             if (sessionUpdate == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(SessionUpdate));
@@ -177,6 +186,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             sessionFromDB.Start = sessionUpdate.Start;
             sessionFromDB.ModifiedOn = DateTime.UtcNow;
+            sessionFromDB.ModifiedBy = currentUser.Id;
             sessionFromDB.MovieId = sessionUpdate.MovieId;
             sessionFromDB.HallId = sessionUpdate.HallId;
             if (sessionFromDB.HallId != sessionUpdate.HallId)
@@ -195,6 +205,8 @@ namespace CinemaTicket.BusinessLogicServices
                     Price = sessionUpdate.Price,
                     CreatedOn = DateTime.UtcNow,
                     ModifiedOn = DateTime.UtcNow,
+                    CreatedBy = currentUser.Id,
+                    ModifiedBy = currentUser.Id,
                     PlaceId = placesInHall[i].Id,
                     Session = sessionFromDB
                 });
