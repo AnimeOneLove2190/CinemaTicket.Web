@@ -14,6 +14,6 @@ namespace CinemaTicket.BusinessLogic.Interfaces
         Task<SessionDetails> GetAsync(int id);
         Task<List<SessionListElement>> GetListAsync();
         Task DeleteAsync(int id);
-        Task<List<SeansView>> GetSeansViewList(Nullable<DateTime> start, Nullable<DateTime> end);
+        Task<List<SeansView>> GetSeansViewList(DateTime? start, DateTime? end);
     }
 }

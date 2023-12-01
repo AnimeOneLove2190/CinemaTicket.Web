@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using OfficeOpenXml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Sessions;
+using CinemaTicket.Infrastructure.Helpers;
+using CinemaTicket.Infrastructure.Constants;
 
 namespace CinemaTicket.WebApi.Controllers
 {
@@ -15,9 +18,11 @@ namespace CinemaTicket.WebApi.Controllers
     public class SessionController : ControllerBase
     {
         private readonly ISessionService sessionService;
-        public SessionController(ISessionService sessionService)
+        private readonly IReportService reportService;
+        public SessionController(ISessionService sessionService, IReportService reportService)
         {
             this.sessionService = sessionService;
+            this.reportService = reportService;
         }
         [HttpPost]
         [Route("AddSession")]
@@ -57,6 +62,14 @@ namespace CinemaTicket.WebApi.Controllers
         public async Task<List<SeansView>> GetSeansListAsync(DateTime? start, DateTime? end)
         {
             return await sessionService.GetSeansViewList(start, end);
+        }
+        [HttpGet]
+        [Route("GetReport")]
+        [Authorize]
+        public async Task<IActionResult> GetReportAsync(DateTime starDate, DateTime endDate)
+        {
+            var fileArray = await reportService.CreateIncomeReportAsync(starDate, endDate);
+            return File(fileArray, ContetnType.Excel, ReportNames.IncomeReport);
         }
     }
 }
