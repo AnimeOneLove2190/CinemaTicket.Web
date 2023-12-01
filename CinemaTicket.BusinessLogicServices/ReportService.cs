@@ -11,7 +11,7 @@ using CinemaTicket.DataAccess.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices
 {
-    public class ReportService
+    public class ReportService : IReportService
     {
         private readonly IExcelService excelService;
         private readonly ISessionDataAccess sessionDataAccess;

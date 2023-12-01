@@ -51,6 +51,8 @@ namespace CinemaTicket.WebApi
             services.AddScoped<IAccountDataAccess, AccountDataAccess>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IBaseDataAccess, BaseDataAccess>();
+            services.AddScoped<IExcelService, ExcelService>();
+            services.AddScoped<IReportService, ReportService>();
             services.AddSwaggerGen();
             services.AddHttpContextAccessor();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
