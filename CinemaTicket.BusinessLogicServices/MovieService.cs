@@ -2,7 +2,11 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
+using OfficeOpenXml;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Movies;
@@ -11,6 +15,7 @@ using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.Infrastructure.Constants;
 using CinemaTicket.Infrastructure.Exceptions;
 using CinemaTicket.Infrastructure.Helpers;
+using CinemaTicket.Infrastructure.Settings;
 
 namespace CinemaTicket.BusinessLogicServices
 {
@@ -19,13 +24,19 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IMovieDataAccess movieDataAccess;
         private readonly IGenreDataAccess genreDataAccess;
         private readonly IAccountService accountService;
+        private readonly FileServiceSettings fileServiceSettings;
         private readonly ILogger<MovieService> logger;
-        public MovieService(IMovieDataAccess movieDataAccess, IGenreDataAccess genreDataAccess, ILogger<MovieService> logger, IAccountService accountService)
+        public MovieService(IMovieDataAccess movieDataAccess, 
+            IGenreDataAccess genreDataAccess, 
+            ILogger<MovieService> logger, 
+            IAccountService accountService, 
+            IOptions<FileServiceSettings> fileServiceSettings)
         {
             this.movieDataAccess = movieDataAccess;
             this.genreDataAccess = genreDataAccess;
             this.accountService = accountService;
             this.logger = logger;
+            this.fileServiceSettings = fileServiceSettings.Value;
         }
         public async Task CreateAsync(MovieCreate movieCreate) 
         {
@@ -182,7 +193,7 @@ namespace CinemaTicket.BusinessLogicServices
             var movieFromDB = await movieDataAccess.GetMovieAsync(id);
             if (movieFromDB == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, id);
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), id);
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
@@ -236,6 +247,73 @@ namespace CinemaTicket.BusinessLogicServices
                 Total = moviePage.Total,
             };
         }
-
+        public async Task SetPosterAsync(IFormFile posterFile, int movieId)
+        {
+            var currentUser = await accountService.GetAccountAsync();
+            var movieFromDB = await movieDataAccess.GetMovieAsync(movieId);
+            if (movieFromDB == null)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), movieId);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
+            }
+            string posterFileName = null;
+            if (posterFile != null && posterFile.Length != 0)
+            {
+                posterFileName = Guid.NewGuid().ToString() + Path.GetExtension(posterFile.FileName);
+                if (!Directory.Exists(fileServiceSettings.ImageFolder))
+                {
+                    Directory.CreateDirectory(fileServiceSettings.ImageFolder);
+                }
+                var emblemFilePath = Path.Combine(fileServiceSettings.ImageFolder, posterFileName);
+                using (var stream = new FileStream(emblemFilePath, FileMode.Create))
+                {
+                    posterFile.CopyTo(stream);
+                }
+            }
+            if(!string.IsNullOrEmpty(movieFromDB.PosterFileName))
+            {
+                string oldPosterFilePath = Path.Combine(fileServiceSettings.ImageFolder, movieFromDB.PosterFileName);
+                if (File.Exists(oldPosterFilePath))
+                {
+                    File.Delete(oldPosterFilePath);
+                }
+            }
+            movieFromDB.PosterFileName = posterFileName;
+            movieFromDB.ModifiedOn = DateTime.UtcNow;
+            movieFromDB.ModifiedBy = currentUser.Id;
+            movieDataAccess.Update(movieFromDB);
+            await movieDataAccess.CommitAsync();
+        }
+        public async Task<PosterView> GetPosterAsync(int movieId)
+        {
+            var movieFromDB = await movieDataAccess.GetMovieAsync(movieId);
+            if (movieFromDB == null)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), movieId);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
+            }
+            if (string.IsNullOrEmpty(movieFromDB.PosterFileName))
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie.PosterFileName), movieId);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
+            }
+            string posterFileName = Path.Combine(fileServiceSettings.ImageFolder, movieFromDB.PosterFileName);
+            if (!File.Exists(posterFileName))
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(File), movieFromDB.PosterFileName);
+                logger.LogError(exceptionMessage);
+                throw new NotFoundException(exceptionMessage);
+            }
+            var type = movieFromDB.PosterFileName.Split(".").LastOrDefault().ToLower();
+            return new PosterView
+            {
+                fileArray = File.ReadAllBytes(posterFileName),
+                Name = movieFromDB.PosterFileName,
+                Type = string.Format(ContentTypeTwo.ImageTemplate, type)
+            };
+        }
     }
 }

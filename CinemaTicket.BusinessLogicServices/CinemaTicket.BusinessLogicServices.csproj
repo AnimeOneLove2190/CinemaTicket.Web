@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus" Version="4.5.3.3" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.3.5" />
   </ItemGroup>
 
