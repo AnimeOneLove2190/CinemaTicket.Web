@@ -39,7 +39,7 @@ namespace CinemaTicket.BusinessLogicServices
             var sessions = await sessionDataAccess.GetListForReportAsync(startDate, endDate);
             var dataList = new List<Dictionary<string, object>>();
             var endDatePlus = endDate.AddDays(1);
-            for (DateTime oneDay = startDate.Date; oneDay <= endDatePlus; oneDay.AddDays(1))
+            for (DateTime oneDay = startDate.Date; oneDay < endDatePlus; oneDay = oneDay.AddDays(1))
             {
                 var sessionsInDay = sessions.Where(x => x.Start >= oneDay && x.Start <= oneDay.AddDays(1)).ToList();
                 var recordDict = new Dictionary<string, object>
