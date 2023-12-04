@@ -135,7 +135,7 @@ namespace CinemaTicket.BusinessLogicServices
             var movieFromDB = await movieDataAccess.GetMovieAsync(movieUpdate.Id);
             if (movieFromDB == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, movieUpdate.Id);
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), movieUpdate.Id);
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
@@ -146,7 +146,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            if (movieUpdate.GenreIds == null)
+            if (movieUpdate.GenreIds == null || movieUpdate.GenreIds.Count == 0)
             {
                 movieUpdate.GenreIds = new List<int>();
             }
