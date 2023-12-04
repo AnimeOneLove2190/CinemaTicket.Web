@@ -39,7 +39,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            var genreFromDB = await genreDataAccess.GetGenreAsync(genreCreate.Name);
+            var genreFromDB = await genreDataAccess.GetGenreAsync(genreCreate.Name.ToLower());
             if (genreFromDB != null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Genre), genreCreate.Name);
@@ -48,7 +48,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             var genre = new Genre
             {
-                Name = genreCreate.Name,
+                Name = genreCreate.Name.ToLower(),
                 Description = genreCreate.Description,
                 CreatedOn = DateTime.Now,
                 ModifiedOn = DateTime.Now,
@@ -80,7 +80,17 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            genreFromDB.Name = genreUpdate.Name;
+            var genreWithSameName = await genreDataAccess.GetGenreAsync(genreUpdate.Name.ToLower());
+            if (genreWithSameName != null)
+            {
+                if (genreWithSameName.Id != genreFromDB.Id)
+                {
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Genre), genreUpdate.Name);
+                    logger.LogError(exceptionMessage);
+                    throw new CustomException(exceptionMessage);
+                }
+            }
+            genreFromDB.Name = genreUpdate.Name.ToLower();
             genreFromDB.Description = genreUpdate.Description;
             genreFromDB.ModifiedOn = DateTime.Now;
             genreFromDB.ModifiedBy = currentUser.Id;

@@ -31,6 +31,10 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Genres.Include(x => x.Movies).Where(x => genreIds.Contains(x.Id)).ToListAsync();
         }
+        public async Task<List<Genre>> GetGenreListAsync(List<string> genreNames)
+        {
+            return await cinemaManagerContext.Genres.Include(x => x.Movies).Where(x => genreNames.Contains(x.Name.ToLower())).ToListAsync();
+        }
     }
 }
 

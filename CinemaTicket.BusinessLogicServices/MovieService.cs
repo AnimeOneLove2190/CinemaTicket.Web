@@ -84,17 +84,20 @@ namespace CinemaTicket.BusinessLogicServices
                 Genres = new List<Genre>()
             };
             await movieDataAccess.CreateAsync(movie);
-            var genresFromDB = await genreDataAccess.GetGenreListAsync();
-            var genreNamesFromDB = genresFromDB.Select(x => x.Name).ToList();
             var needAddGenres = new List<string>();
-            for (int i = 0; i < movieCreate.GenreNames.Count; i++)
+            foreach (var genreName in movieCreate.GenreNames)
             {
-                if(genreNamesFromDB.Contains(movieCreate.GenreNames[i].ToLower()))
+                needAddGenres.Add(genreName.ToLower());
+            }
+            var genresFromDB = await genreDataAccess.GetGenreListAsync(needAddGenres);
+            if (genresFromDB.Count > 0)
+            {
+                var genreNamesFromDB = genresFromDB.Select(x => x.Name.ToLower()).ToList();
+                needAddGenres = needAddGenres.Except(genreNamesFromDB).ToList();
+                foreach (var genre in genresFromDB)
                 {
-                    movie.Genres.Add(genresFromDB[i]);
-                    continue;
+                    movie.Genres.Add(genre);
                 }
-                needAddGenres.Add(movieCreate.GenreNames[i]);
             }
             if (needAddGenres != null && needAddGenres.Count > 0)
             {
