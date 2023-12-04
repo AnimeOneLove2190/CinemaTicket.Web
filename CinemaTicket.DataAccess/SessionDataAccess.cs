@@ -35,5 +35,9 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Sessions.Include(x => x.Tickets).Include(x => x.Hall).Include(x => x.Movie).Where(x => x.Start >= startDate && x.Start <= endDate).AsNoTracking().ToListAsync();
         }
+        public async Task<List<Session>> GetListForReportAsync(DateTime startDate, DateTime endDate)
+        {
+            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).Include(x => x.Movie).Where(x => x.Start >= startDate && x.Start <= endDate).AsNoTracking().ToListAsync();
+        }
     }
 }

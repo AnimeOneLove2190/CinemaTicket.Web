@@ -13,5 +13,6 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task<List<Session>> GetSessionListAsync();
         Task<List<Session>> GetSessionListAsync(List<int> sessionsIds);
         Task<List<Session>> GetSessionListInPeriodAsync(DateTime startDate, DateTime endDate);
+        Task<List<Session>> GetListForReportAsync(DateTime startDate, DateTime endDate);
     }
 }
