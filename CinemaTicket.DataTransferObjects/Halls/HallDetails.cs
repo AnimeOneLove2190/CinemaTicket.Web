@@ -11,6 +11,6 @@ namespace CinemaTicket.DataTransferObjects.Halls
         public string Name { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime ModifiedOn { get; set; }
-        public ICollection<RowDetails> Rows { get; set; }
+        public ICollection<RowListElement> Rows { get; set; }
     }
 }
