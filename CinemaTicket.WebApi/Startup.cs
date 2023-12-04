@@ -16,6 +16,7 @@ using CinemaTicket.DataAccess;
 using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.BusinessLogicServices;
 using CinemaTicket.BusinessLogic.Interfaces;
+using CinemaTicket.Infrastructure.Settings;
 
 namespace CinemaTicket.WebApi
 {
@@ -53,6 +54,9 @@ namespace CinemaTicket.WebApi
             services.AddScoped<IBaseDataAccess, BaseDataAccess>();
             services.AddScoped<IExcelService, ExcelService>();
             services.AddScoped<IReportService, ReportService>();
+
+            services.Configure<FileServiceSettings>(Configuration.GetSection("FileServiceSettings"));
+
             services.AddSwaggerGen();
             services.AddHttpContextAccessor();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

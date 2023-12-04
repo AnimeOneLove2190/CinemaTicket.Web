@@ -52,5 +52,20 @@ namespace CinemaTicket.WebApi.Controllers
         {
             return await movieService.GetPageAsync(movieSearch);
         }
+        [HttpPost]
+        [Route("SetPoster")]
+        [Authorize]
+        public async Task SetPosterAsync(IFormFile posterFile, int movieId)
+        {
+            await movieService.SetPosterAsync(posterFile, movieId);
+        }
+        [HttpGet]
+        [Route("GetPoster")]
+        [Authorize]
+        public async Task<IActionResult> GetPosterAsync(int movieId)
+        {
+            var poster = await movieService.GetPosterAsync(movieId);
+            return File(poster.fileArray, poster.Type, poster.Name);
+        }
     }
 }
