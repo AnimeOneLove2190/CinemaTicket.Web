@@ -303,11 +303,12 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new CustomException(exceptionMessage);
             }
             var ticketsToUpdate = unsoldTickets;
-            for (int i = 0; i < ticketsToUpdate.Count; i++)
+            foreach (var ticket in ticketsToUpdate)
             {
-                ticketsToUpdate[i].IsSold = true;
-                ticketsToUpdate[i].ModifiedOn = DateTime.UtcNow;
-                ticketsToUpdate[i].ModifiedBy = currentUser.Id;
+                ticket.IsSold = true;
+                ticket.DateOfSale = DateTime.UtcNow;
+                ticket.ModifiedOn = DateTime.UtcNow;
+                ticket.ModifiedBy = currentUser.Id;
             }
             ticketDataAccess.UpdateList(ticketsToUpdate);
             await ticketDataAccess.CommitAsync();
