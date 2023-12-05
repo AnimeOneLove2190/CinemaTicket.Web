@@ -190,9 +190,7 @@ namespace CinemaTicket.BusinessLogicServices
             var placesFromDB = await placeDataAccess.GetPlaceListAsync();
             if (placesFromDB == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Place));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
+                placesFromDB = new List<Place>();
             }
             return placesFromDB.Select(x => new PlaceListElement
             {

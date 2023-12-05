@@ -203,9 +203,7 @@ namespace CinemaTicket.BusinessLogicServices
             var hallsFromDB = await hallDataAccess.GetHallListAsync();
             if (hallsFromDB == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Hall));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
+                hallsFromDB = new List<Hall>();
             }
             return hallsFromDB.Select(x => new HallListElement
             {

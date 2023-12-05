@@ -120,9 +120,7 @@ namespace CinemaTicket.BusinessLogicServices
             var genresFromDB = await genreDataAccess.GetGenreListAsync();
             if (genresFromDB == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Genre));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
+                genresFromDB = new List<Genre>();
             }
             return genresFromDB.Select(x => new GenreListElement
             {
