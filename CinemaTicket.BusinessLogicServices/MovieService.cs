@@ -146,7 +146,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            if (movieUpdate.GenreIds == null || movieUpdate.GenreIds.Count == 0)
+            if (movieUpdate.GenreIds == null)
             {
                 movieUpdate.GenreIds = new List<int>();
             }
