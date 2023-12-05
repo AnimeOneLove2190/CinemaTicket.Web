@@ -81,6 +81,7 @@ namespace CinemaTicket.BusinessLogicServices
                 ModifiedBy = currentUser.Id
             };
             await placeDataAccess.CreateAsync(place);
+            await placeDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(PlaceUpdate placeUpdate)
         {
