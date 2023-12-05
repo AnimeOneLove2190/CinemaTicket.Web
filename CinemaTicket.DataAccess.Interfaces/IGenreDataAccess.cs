@@ -13,5 +13,6 @@ namespace CinemaTicket.DataAccess.Interfaces
         Task<Genre> GetGenreAsync(string name);
         Task<List<Genre>> GetGenreListAsync();
         Task<List<Genre>> GetGenreListAsync(List<int> genreIds);
+        Task<List<Genre>> GetGenreListAsync(List<string> genreNames);
     }
 }

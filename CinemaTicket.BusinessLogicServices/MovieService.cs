@@ -59,6 +59,16 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
+            if (movieCreate.GenreNames.Count > 0)
+            {
+                foreach (var genreName in movieCreate.GenreNames)
+                {
+                    if (string.IsNullOrEmpty(genreName) || string.IsNullOrWhiteSpace(genreName))
+                    {
+                        movieCreate.GenreNames.Remove(genreName);
+                    }
+                }
+            }
             var movieListFromDB = await movieDataAccess.GetMovieListAsync(movieCreate.Name);
             foreach (var movieFromDB in movieListFromDB)
             {
@@ -84,31 +94,30 @@ namespace CinemaTicket.BusinessLogicServices
                 Genres = new List<Genre>()
             };
             await movieDataAccess.CreateAsync(movie);
-            var genresFromDB = await genreDataAccess.GetGenreListAsync();
-            var genreNamesFromDB = genresFromDB.Select(x => x.Name).ToList();
-            var needAddGenres = new List<string>();
-            for (int i = 0; i < movieCreate.GenreNames.Count; i++)
+            var genresLower = movieCreate.GenreNames.Select(x => x.ToLower()).ToList();
+            var genresFromDB = await genreDataAccess.GetGenreListAsync(genresLower);
+            var newGenres = new List<Genre>();
+            foreach (var genre in movieCreate.GenreNames)
             {
-                if(genreNamesFromDB.Contains(movieCreate.GenreNames[i].ToLower()))
+                var genreExist = genresFromDB.FirstOrDefault(x => x.Name.ToLower() == genre.ToLower());
+                if (genreExist != null)
                 {
-                    movie.Genres.Add(genresFromDB[i]);
-                    continue;
+                    movie.Genres.Add(genreExist);
                 }
-                needAddGenres.Add(movieCreate.GenreNames[i]);
-            }
-            if (needAddGenres != null && needAddGenres.Count > 0)
-            {
-                var genres = needAddGenres.Select(x => new Genre
+                else
                 {
-                    Name = x,
-                    CreatedOn = DateTime.Now,
-                    ModifiedOn = DateTime.Now,
-                    CreatedBy = currentUser.Id,
-                    ModifiedBy = currentUser.Id,
-                    Movies = new List<Movie> { movie }
-                }).ToList();
-                await genreDataAccess.CreateListAsync(genres);
+                    newGenres.Add(new Genre
+                    {
+                        Name = genre,
+                        CreatedOn = DateTime.Now,
+                        ModifiedOn = DateTime.Now,
+                        CreatedBy = currentUser.Id,
+                        ModifiedBy = currentUser.Id,
+                        Movies = new List<Movie> { movie }
+                    });
+                }
             }
+            await genreDataAccess.CreateListAsync(newGenres);
             await movieDataAccess.CommitAsync();
         }
         public async Task UpdateAsync(MovieUpdate movieUpdate)
