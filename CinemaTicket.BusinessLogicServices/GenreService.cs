@@ -46,10 +46,6 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            genreCreate.Name = genreCreate.Name.ToLower();
-            var charArray = genreCreate.Name.ToCharArray();
-            charArray[0] = char.ToUpper(charArray[0]);
-            genreCreate.Name = new string(charArray);
             var genre = new Genre
             {
                 Name = genreCreate.Name,
