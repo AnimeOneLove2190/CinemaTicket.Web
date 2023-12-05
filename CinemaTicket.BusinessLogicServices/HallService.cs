@@ -38,6 +38,16 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
+            if (!string.IsNullOrEmpty(hallCreate.Name) || !string.IsNullOrWhiteSpace(hallCreate.Name))
+            {
+                var hallFromDB = await hallDataAccess.GetHallAsync(hallCreate.Name);
+                if (hallFromDB != null)
+                {
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Hall), hallCreate.Name);
+                    logger.LogError(exceptionMessage);
+                    throw new CustomException(exceptionMessage);
+                }
+            }
             var hall = new Hall
             {
                 Name = hallCreate.Name,
@@ -88,6 +98,19 @@ namespace CinemaTicket.BusinessLogicServices
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), hallUpdate.Id);
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
+            }
+            if (!string.IsNullOrEmpty(hallUpdate.Name) || !string.IsNullOrWhiteSpace(hallUpdate.Name))
+            {
+                var hallWithSameName = await hallDataAccess.GetHallAsync(hallUpdate.Name);
+                if (hallWithSameName != null)
+                {
+                    if (hallFromDB.Id != hallWithSameName.Id)
+                    {
+                        var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Hall), hallUpdate.Name);
+                        logger.LogError(exceptionMessage);
+                        throw new CustomException(exceptionMessage);
+                    }
+                }
             }
             var soldPlacesInHall = new List<Place>();
             if (hallFromDB.Rows != null || hallFromDB.Rows.Count > 0)
