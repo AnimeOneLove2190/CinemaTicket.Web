@@ -50,6 +50,12 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
+            if (rowCreate.PlaceCapacity <= 0)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowCreate), nameof(rowCreate.PlaceCapacity));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
             var hallFromDB = await hallDataAccess.GetHallAsync(rowCreate.HallId);
             if (hallFromDB == null)
             {
@@ -88,6 +94,7 @@ namespace CinemaTicket.BusinessLogicServices
                         Number = rowCreate.PlacesNumbers[i],
                         CreatedOn = DateTime.Now,
                         ModifiedOn = DateTime.Now,
+                        Capacity = rowCreate.PlaceCapacity,
                         CreatedBy = currentUser.Id,
                         ModifiedBy = currentUser.Id,
                         Row = row
@@ -121,6 +128,12 @@ namespace CinemaTicket.BusinessLogicServices
             if (rowUpdate.Number <= 0)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowUpdate), nameof(rowUpdate.Number));
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
+            if (rowUpdate.PlaceCapacity <= 0)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowUpdate), nameof(rowUpdate.PlaceCapacity));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -186,7 +199,7 @@ namespace CinemaTicket.BusinessLogicServices
                     createPlaces.Add(new Place
                     {
                         Number = createPlaceNumbers[i],
-                        Capacity = 1,
+                        Capacity = rowUpdate.PlaceCapacity,
                         CreatedOn = DateTime.UtcNow,
                         ModifiedOn = DateTime.UtcNow,
                         CreatedBy = currentUser.Id,
