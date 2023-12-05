@@ -90,7 +90,7 @@ namespace CinemaTicket.BusinessLogicServices
                     throw new CustomException(exceptionMessage);
                 }
             }
-            genreFromDB.Name = genreUpdate.Name.ToLower();
+            genreFromDB.Name = genreUpdate.Name;
             genreFromDB.Description = genreUpdate.Description;
             genreFromDB.ModifiedOn = DateTime.Now;
             genreFromDB.ModifiedBy = currentUser.Id;
