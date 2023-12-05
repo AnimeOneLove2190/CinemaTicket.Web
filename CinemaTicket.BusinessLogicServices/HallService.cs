@@ -7,6 +7,7 @@ using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Halls;
 using CinemaTicket.DataTransferObjects.Rows;
+using CinemaTicket.DataTransferObjects.Places;
 using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.Infrastructure.Constants;
 using CinemaTicket.Infrastructure.Exceptions;
@@ -182,13 +183,18 @@ namespace CinemaTicket.BusinessLogicServices
                 Name = hallFromDB.Name,
                 CreatedOn = hallFromDB.CreatedOn,
                 ModifiedOn = hallFromDB.ModifiedOn,
-                Rows = hallFromDB.Rows.Select(x => new RowDetails
+                Rows = hallFromDB.Rows.Select(x => new RowListElement
                 {
                     Id = x.Id,
                     Number = x.Number,
-                    CreatedOn = x.CreatedOn,
-                    ModifiedOn = x.ModifiedOn,
                     HallId = x.HallId,
+                    Places = x.Places.Select(p => new PlaceListElement
+                    {
+                        Id = p.Id,
+                        Capacity = p.Capacity,
+                        Number= p.Number,
+                        RowId = p.RowId,
+                    }).ToList()
                 }).ToList()
             };
         }

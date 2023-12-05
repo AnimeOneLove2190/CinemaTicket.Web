@@ -232,13 +232,11 @@ namespace CinemaTicket.BusinessLogicServices
                 CreatedOn = rowFromDB.CreatedOn,
                 ModifiedOn = rowFromDB.ModifiedOn,
                 HallId = rowFromDB.HallId,
-                Places = rowFromDB.Places.Select(x => new PlaceDetails
+                Places = rowFromDB.Places.Select(x => new PlaceListElement
                 {
                     Id = x.Id,
                     Capacity = x.Capacity,
                     Number = x.Number,
-                    CreatedOn = x.CreatedOn,
-                    ModifiedOn = x.ModifiedOn,
                     RowId = x.RowId,
                 }).ToList()
             };
