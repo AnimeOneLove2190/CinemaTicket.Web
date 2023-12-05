@@ -246,9 +246,7 @@ namespace CinemaTicket.BusinessLogicServices
             var rowsFromDB = await rowDataAccess.GetRowListAsync();
             if (rowsFromDB == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Row));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
+                rowsFromDB = new List<Row>();
             }
             return rowsFromDB.Select(x => new RowListElement
             {

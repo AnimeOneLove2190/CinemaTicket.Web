@@ -249,9 +249,7 @@ namespace CinemaTicket.BusinessLogicServices
             var sessionsFromDB = await sessionDataAccess.GetSessionListAsync();
             if (sessionsFromDB == null || sessionsFromDB.Count == 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Session));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
+                sessionsFromDB = new List<Session>();
             }
             return sessionsFromDB.Select(x => new SessionListElement
             {

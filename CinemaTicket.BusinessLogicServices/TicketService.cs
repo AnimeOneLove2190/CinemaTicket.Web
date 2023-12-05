@@ -187,9 +187,7 @@ namespace CinemaTicket.BusinessLogicServices
             var ticketFromDB = await ticketDataAccess.GetTicketListAsync();
             if (ticketFromDB == null || ticketFromDB.Count == 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Ticket));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
+                ticketFromDB = new List<Ticket>();
             }
             return ticketFromDB.Select(x => new TicketListElement
             {
