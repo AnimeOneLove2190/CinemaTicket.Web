@@ -59,6 +59,16 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
+            if (movieCreate.GenreNames.Count > 0)
+            {
+                foreach (var genreName in movieCreate.GenreNames)
+                {
+                    if (string.IsNullOrEmpty(genreName) || string.IsNullOrWhiteSpace(genreName))
+                    {
+                        movieCreate.GenreNames.Remove(genreName);
+                    }
+                }
+            }
             var movieListFromDB = await movieDataAccess.GetMovieListAsync(movieCreate.Name);
             foreach (var movieFromDB in movieListFromDB)
             {
@@ -101,7 +111,14 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (needAddGenres != null && needAddGenres.Count > 0)
             {
-                var genres = needAddGenres.Select(x => new Genre
+                var finalGenreNames = new List<string>();
+                foreach (var genreName in needAddGenres)
+                {
+                    var charArray = genreName.ToCharArray();
+                    charArray[0] = char.ToUpper(charArray[0]);
+                    finalGenreNames.Add(new string(charArray));
+                }
+                var genres = finalGenreNames.Select(x => new Genre
                 {
                     Name = x,
                     CreatedOn = DateTime.Now,

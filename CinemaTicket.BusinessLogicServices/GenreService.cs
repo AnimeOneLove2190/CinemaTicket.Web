@@ -39,16 +39,20 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
-            var genreFromDB = await genreDataAccess.GetGenreAsync(genreCreate.Name.ToLower());
+            var genreFromDB = await genreDataAccess.GetGenreAsync(genreCreate.Name);
             if (genreFromDB != null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Genre), genreCreate.Name);
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
+            genreCreate.Name = genreCreate.Name.ToLower();
+            var charArray = genreCreate.Name.ToCharArray();
+            charArray[0] = char.ToUpper(charArray[0]);
+            genreCreate.Name = new string(charArray);
             var genre = new Genre
             {
-                Name = genreCreate.Name.ToLower(),
+                Name = genreCreate.Name,
                 Description = genreCreate.Description,
                 CreatedOn = DateTime.Now,
                 ModifiedOn = DateTime.Now,
