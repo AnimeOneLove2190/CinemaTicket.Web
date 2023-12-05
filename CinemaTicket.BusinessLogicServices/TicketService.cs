@@ -142,14 +142,14 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            if (ticketFromDB.IsSold == true)
+            if (ticketFromDB.IsSold)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.TicketIsSold, ticketUpdate.Id);
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             ticketFromDB.IsSold = ticketUpdate.IsSold;
-            if (ticketUpdate.IsSold == true)
+            if (ticketUpdate.IsSold)
             {
                 ticketFromDB.DateOfSale = DateTime.UtcNow;
             }
@@ -207,9 +207,11 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            if (ticketFromDB.IsSold == true)
+            if (ticketFromDB.IsSold)
             {
-                throw new Exception();
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.TicketIsSold, id);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             ticketDataAccess.Delete(ticketFromDB);
             await ticketDataAccess.CommitAsync();
@@ -229,6 +231,10 @@ namespace CinemaTicket.BusinessLogicServices
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), sessionFromDB.HallId);
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
+            }
+            if (sessionFromDB.Tickets == null)
+            {
+                return new List<TicketView>();
             }
             var rowsInHall = hallFromDB.Rows.ToList();
             var placesInHall = rowsInHall.SelectMany(x => x.Places).ToList();
@@ -307,6 +313,9 @@ namespace CinemaTicket.BusinessLogicServices
                 ticket.DateOfSale = DateTime.UtcNow;
                 ticket.ModifiedOn = DateTime.UtcNow;
                 ticket.ModifiedBy = currentUser.Id;
+                ticket.IsSold = true;
+                ticket.ModifiedOn = DateTime.UtcNow;
+                ticket.ModifiedBy = currentUser.Id;
             }
             ticketDataAccess.UpdateList(ticketsToUpdate);
             await ticketDataAccess.CommitAsync();
@@ -321,7 +330,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
+            var unsoldTickets = ticketsFromDB.Where(x => !x.IsSold).ToList();
             if (unsoldTickets.Count != ticketsIds.Count)
             {
                 var exceptionMessage = ExceptionMessageTemplate.TicketsAreSold;

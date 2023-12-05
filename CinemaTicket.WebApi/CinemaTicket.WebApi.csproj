@@ -22,9 +22,5 @@
     <ProjectReference Include="..\CinemaTicket.Entities\CinemaTicket.Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CinemaTicket.TestObjetcs\CinemaTicket.TestObjects.csproj" />
-  </ItemGroup>
-
 
 </Project>

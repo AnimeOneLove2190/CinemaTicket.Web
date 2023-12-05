@@ -209,7 +209,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            var soldTickets = placeFromDB.Tickets.Where(X => X.IsSold == true).ToList();
+            var soldTickets = placeFromDB.Tickets.Where(X => X.IsSold).ToList();
             if (soldTickets.Count > 0)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Place));

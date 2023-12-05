@@ -17,7 +17,7 @@ namespace CinemaTicket.DataAccess
         }
         public async Task<Session> GetSessionAsync(int id)
         {
-            return await cinemaManagerContext.Sessions.Include(x => x.Tickets).ThenInclude(x => x.Place).FirstOrDefaultAsync(x => x.Id == id);
+            return await cinemaManagerContext.Sessions.Include(x => x.Movie).Include(x => x.Tickets).ThenInclude(x => x.Place).FirstOrDefaultAsync(x => x.Id == id);
         }
         public async Task<Session> GetSessionAsync(DateTime start, int hallId)
         {

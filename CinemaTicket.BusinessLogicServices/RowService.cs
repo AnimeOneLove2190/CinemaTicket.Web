@@ -87,11 +87,11 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 rowCreate.PlacesNumbers = rowCreate.PlacesNumbers.Distinct().ToList();
                 var places = new List<Place>();
-                for (int i = 0; i < rowCreate.PlacesNumbers.Count; i++)
+                foreach (var number in rowCreate.PlacesNumbers)
                 {
                     places.Add(new Place
                     {
-                        Number = rowCreate.PlacesNumbers[i],
+                        Number = number,
                         CreatedOn = DateTime.Now,
                         ModifiedOn = DateTime.Now,
                         Capacity = rowCreate.PlaceCapacity,
@@ -166,13 +166,13 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 var placesInRow = await placeDataAccess.GetPlaceListAsync();
                 placesInRow = placesInRow.Where(x => x.RowId == rowFromDB.Id).ToList();
-                for (int i = 0; i < placesInRow.Count; i++)
+                foreach (var place in placesInRow)
                 {
                     var soldTickets = new List<Ticket>();
-                    soldTickets = placesInRow[i].Tickets.Where(x => x.IsSold == true).ToList();
+                    soldTickets = place.Tickets.Where(x => x.IsSold).ToList();
                     if (soldTickets.Count > 0)
                     {
-                        soldPlacesInRow.Add(placesInRow[i]);
+                        soldPlacesInRow.Add(place);
                     }
                 }
             }
@@ -194,11 +194,11 @@ namespace CinemaTicket.BusinessLogicServices
             if (createPlaceNumbers != null && createPlaceNumbers.Count > 0)
             {
                 var createPlaces = new List<Place>();
-                for (int i = 0; i < createPlaceNumbers.Count; i++)
+                foreach (var number in createPlaceNumbers)
                 {
                     createPlaces.Add(new Place
                     {
-                        Number = createPlaceNumbers[i],
+                        Number = number,
                         Capacity = rowUpdate.PlaceCapacity,
                         CreatedOn = DateTime.UtcNow,
                         ModifiedOn = DateTime.UtcNow,
@@ -269,10 +269,10 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 var placesInRow = await placeDataAccess.GetPlaceListAsync();
                 placesInRow = placesInRow.Where(x => x.RowId == rowFromDB.Id).ToList();
-                for (int i = 0; i < placesInRow.Count; i++)
+                foreach (var place in placesInRow)
                 {
                     var soldTickets = new List<Ticket>();
-                    soldTickets = placesInRow[i].Tickets.Where(x => x.IsSold == true).ToList();
+                    soldTickets = place.Tickets.Where(x => x.IsSold).ToList();
                     if (soldTickets.Count > 0)
                     {
                         var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Row));
