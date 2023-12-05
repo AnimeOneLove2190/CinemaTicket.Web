@@ -103,7 +103,7 @@ namespace CinemaTicket.BusinessLogicServices
             };
             await sessionDataAccess.CreateAsync(session);
             var ticketsInHall = new List<Ticket>();
-            for (int i = 0; i < placesInHall.Count; i++)
+            foreach (var place in placesInHall)
             {
                 ticketsInHall.Add(new Ticket
                 {
@@ -114,7 +114,7 @@ namespace CinemaTicket.BusinessLogicServices
                     ModifiedOn = DateTime.UtcNow,
                     CreatedBy = currentUser.Id,
                     ModifiedBy = currentUser.Id,
-                    PlaceId = placesInHall[i].Id,
+                    PlaceId = place.Id,
                     Session = session
                 });
             }
@@ -155,7 +155,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            var soldTickets = sessionFromDB.Tickets.Where(x => x.IsSold == true).ToList();
+            var soldTickets = sessionFromDB.Tickets.Where(x => x.IsSold).ToList();
             if (soldTickets.Count > 0)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Session));
@@ -196,7 +196,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             sessionDataAccess.Update(sessionFromDB);
             var ticketsInHall = new List<Ticket>();
-            for (int i = 0; i < placesInHall.Count; i++)
+            foreach (var place in placesInHall)
             {
                 ticketsInHall.Add(new Ticket
                 {
@@ -207,7 +207,7 @@ namespace CinemaTicket.BusinessLogicServices
                     ModifiedOn = DateTime.UtcNow,
                     CreatedBy = currentUser.Id,
                     ModifiedBy = currentUser.Id,
-                    PlaceId = placesInHall[i].Id,
+                    PlaceId = place.Id,
                     Session = sessionFromDB
                 });
             }
@@ -270,7 +270,7 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
-            var soldTicketsInSession = sessionFromDB.Tickets.Where(x => x.IsSold == true).ToList();
+            var soldTicketsInSession = sessionFromDB.Tickets.Where(x => x.IsSold).ToList();
             if (soldTicketsInSession.Count > 0)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Session));
@@ -299,7 +299,7 @@ namespace CinemaTicket.BusinessLogicServices
                 Start = session.Start,
                 Duration = session.Movie.Duration,
                 HasTickets = session.Tickets != null && session.Tickets.Any(),
-                HasUnsoldTickets = session != null && session.Tickets.Any(x => x.IsSold == false)
+                HasUnsoldTickets = session != null && session.Tickets.Any(x => !x.IsSold)
             }).ToList();
             return seansViewList;
         }

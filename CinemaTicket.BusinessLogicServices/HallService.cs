@@ -119,12 +119,12 @@ namespace CinemaTicket.BusinessLogicServices
                 var rowsIds = hallFromDB.Rows.Select(x => x.Id).ToList();
                 var allPlaces = await placeDataAccess.GetPlaceListAsync();
                 var placesInHall = allPlaces.Where(x => rowsIds.Contains(x.RowId)).ToList();
-                for (int i = 0; i < placesInHall.Count; i++)
+                foreach (var place in placesInHall)
                 {
-                    var soldTickets = placesInHall[i].Tickets.Where(x => x.IsSold == true).ToList();
+                    var soldTickets = place.Tickets.Where(x => x.IsSold).ToList();
                     if (soldTickets.Count > 0)
                     {
-                        soldPlacesInHall.Add(placesInHall[i]);
+                        soldPlacesInHall.Add(place);
                     }
                 }
             }
@@ -148,11 +148,11 @@ namespace CinemaTicket.BusinessLogicServices
             if (createRowsNumbers != null && createRowsNumbers.Count > 0)
             {
                 var createRows = new List<Row>();
-                for (int i = 0; i < createRowsNumbers.Count; i++)
+                foreach (var number in createRowsNumbers)
                 {
                     createRows.Add(new Row
                     {
-                        Number = createRowsNumbers[i],
+                        Number = number,
                         CreatedOn = DateTime.UtcNow,
                         ModifiedOn = DateTime.UtcNow,
                         HallId = hallFromDB.Id,
@@ -228,9 +228,9 @@ namespace CinemaTicket.BusinessLogicServices
                 var rowsIds = hallFromDB.Rows.Select(x => x.Id).ToList();
                 var allPlaces = await placeDataAccess.GetPlaceListAsync();
                 var placesInHall = allPlaces.Where(x => rowsIds.Contains(x.RowId)).ToList();
-                for (int i = 0; i < placesInHall.Count; i++)
+                foreach (var place in placesInHall)
                 {
-                    var soldTickets = placesInHall[i].Tickets.Where(x => x.IsSold == true).ToList();
+                    var soldTickets = place.Tickets.Where(x => x.IsSold).ToList();
                     if (soldTickets.Count > 0)
                     {
                         var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Hall));
