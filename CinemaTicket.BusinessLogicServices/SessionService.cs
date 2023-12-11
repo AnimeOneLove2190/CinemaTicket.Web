@@ -281,7 +281,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<List<SeansView>> GetSeansViewList(DateTime? start, DateTime? end)
         {
             var startDate = start ?? DateTime.Today;
-            var endDate = end ?? DateTime.Today;
+            var endDate = end ?? DateTime.Today.AddDays(1);
             var sessionsInPeriod = await sessionDataAccess.GetSessionListInPeriodAsync(startDate, endDate);
             if (sessionsInPeriod == null)
             {
