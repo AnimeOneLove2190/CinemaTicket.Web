@@ -38,5 +38,48 @@ namespace CinemaTicket.BusinessLogicServices
                 }
             }
         }
+        public byte[] GetTemplate(string worksheetName, List<string> columns)
+        {
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add(worksheetName);
+                SetHeader(worksheet, columns);
+                worksheet.Cells.AutoFitColumns();
+                var fileBytes = package.GetAsByteArray();
+                return fileBytes;
+            }
+        }
+        public Dictionary<string, int> GetColumnIndexes(ExcelWorksheet worksheet, List<string> columns)
+        {
+            var columnIndexes = new Dictionary<string, int>();
+            foreach (var columnName in columns)
+            {
+                var columnIndex = FindColumnIndex(worksheet, columnName);
+                if(columnIndex != -1)
+                {
+                    columnIndexes.Add(columnName, columnIndex);
+                }
+                else
+                {
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.ColumnNotFound, columnName);
+                    logger.LogError(exceptionMessage);
+                    throw new NotFoundException(exceptionMessage);
+                }
+            }
+            return columnIndexes;
+        }
+        public int FindColumnIndex(ExcelWorksheet worksheet, string columnName)
+        {
+            int totalColumns = worksheet.Dimension.Columns;
+            for (int col = 1; col <= totalColumns; col++)
+            {
+                var cellValue = worksheet.Cells[1, col].Text;
+                if (string.Equals(cellValue, columnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return col;
+                }
+            }
+            return -1;
+        }
     }
 }
