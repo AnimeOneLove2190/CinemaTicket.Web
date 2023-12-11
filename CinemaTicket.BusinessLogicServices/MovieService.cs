@@ -156,20 +156,12 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new CustomException(exceptionMessage);
             }
             var movieListFromDB = await movieDataAccess.GetMovieListAsync(movieUpdate.Name);
-            foreach (var movieListElement in movieListFromDB)
+            var movieWithSameName = movieListFromDB.FirstOrDefault(x => x.Name.ToLower() == movieUpdate.Name.ToLower() && x.Description.ToLower() == movieUpdate.Description.ToLower());
+            if (movieWithSameName != null && movieWithSameName.Id != movieFromDB.Id)
             {
-                if (movieListElement != null)
-                {
-                    if (movieListElement.Name.ToLower() == movieUpdate.Name.ToLower() && movieListElement.Description.ToLower() == movieUpdate.Description.ToLower())
-                    {
-                        if (movieListElement.Id != movieFromDB.Id)
-                        {
-                            var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieUpdate.Name);
-                            logger.LogError(exceptionMessage);
-                            throw new CustomException(exceptionMessage);
-                        }
-                    }
-                }
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieUpdate.Name);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
             }
             if (movieUpdate.GenreIds == null)
             {
