@@ -155,6 +155,14 @@ namespace CinemaTicket.BusinessLogicServices
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
+            var movieListFromDB = await movieDataAccess.GetMovieListAsync(movieUpdate.Name);
+            var movieWithSameName = movieListFromDB.FirstOrDefault(x => x.Name.ToLower() == movieUpdate.Name.ToLower() && x.Description.ToLower() == movieUpdate.Description.ToLower());
+            if (movieWithSameName != null && movieWithSameName.Id != movieFromDB.Id)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieUpdate.Name);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
             if (movieUpdate.GenreIds == null)
             {
                 movieUpdate.GenreIds = new List<int>();
