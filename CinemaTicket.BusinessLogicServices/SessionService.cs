@@ -52,13 +52,13 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (sessionCreate.Price <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(SessionCreate), nameof(sessionCreate.Price));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(SessionCreate), nameof(sessionCreate.Price));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (sessionCreate.Start == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(SessionCreate), nameof(sessionCreate.Start));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(SessionCreate), nameof(sessionCreate.Start));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -132,19 +132,19 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (sessionUpdate.Id <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(SessionUpdate), nameof(sessionUpdate.Id));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(SessionUpdate), nameof(sessionUpdate.Id));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (sessionUpdate.Start == null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(SessionUpdate), nameof(sessionUpdate.Start));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(SessionUpdate), nameof(sessionUpdate.Start));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (sessionUpdate.Price <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(SessionUpdate), nameof(sessionUpdate.Price));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(SessionUpdate), nameof(sessionUpdate.Price));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }

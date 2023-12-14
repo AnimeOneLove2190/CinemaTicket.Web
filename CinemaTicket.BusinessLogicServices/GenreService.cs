@@ -63,7 +63,7 @@ namespace CinemaTicket.BusinessLogicServices
             var currentUser = await accountService.GetAccountAsync();
             if (genreUpdate.Id <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(GenreUpdate), nameof(genreUpdate.Id));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(GenreUpdate), nameof(genreUpdate.Id));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }

@@ -52,7 +52,7 @@ namespace CinemaTicket.BusinessLogicServices
             var negativeNumbers = hallCreate.RowsNumbers.Where(x => x <= 0).ToList();
             if (negativeNumbers.Count > 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(HallCreate), nameof(hallCreate.RowsNumbers));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(HallCreate), nameof(hallCreate.RowsNumbers));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -96,7 +96,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (hallUpdate.Id <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(HallUpdate), nameof(hallUpdate.Id));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(HallUpdate), nameof(hallUpdate.Id));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }

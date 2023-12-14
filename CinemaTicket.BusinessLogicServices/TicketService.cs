@@ -58,7 +58,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (ticketCreate.Price <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(TicketCreate), nameof(ticketCreate.Price));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(TicketCreate), nameof(ticketCreate.Price));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -109,13 +109,13 @@ namespace CinemaTicket.BusinessLogicServices
             }
             if (ticketUpdate.Id <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(TicketCreate), nameof(ticketUpdate.Id));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(TicketCreate), nameof(ticketUpdate.Id));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
             if (ticketUpdate.Price <= 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(TicketCreate), nameof(ticketUpdate.Price));
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(TicketCreate), nameof(ticketUpdate.Price));
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
@@ -434,7 +434,7 @@ namespace CinemaTicket.BusinessLogicServices
                 var price = int.Parse(worksheet.Cells[row, columnIndexes[BulkTicketCreateTemplate.Column.Price]].Value.ToString());
                 if (price <= 0)
                 {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(Ticket), nameof(Ticket.Price));
+                    var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(Ticket), nameof(Ticket.Price));
                     logger.LogError(exceptionMessage);
                     throw new CustomException(exceptionMessage);
                 }
