@@ -219,6 +219,7 @@ namespace CinemaTicket.BusinessLogicServices
                 Id = movieFromDB.Id,
                 Name = movieFromDB.Name,
                 Description = movieFromDB.Description,
+                Duration = movieFromDB.Duration,
                 CreatedOn = movieFromDB.CreatedOn,
                 ModifiedOn = movieFromDB.ModifiedOn,
                 Genres = movieFromDB.Genres.Select(x => new GenreDetails
