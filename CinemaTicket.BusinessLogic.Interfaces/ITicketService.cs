@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using CinemaTicket.Entities;
 using CinemaTicket.DataTransferObjects.Tickets;
-
 namespace CinemaTicket.BusinessLogic.Interfaces
 {
     public interface ITicketService
@@ -17,5 +17,7 @@ namespace CinemaTicket.BusinessLogic.Interfaces
         Task<List<TicketView>> GetTicketViewList(int sessionId, bool? isSold);
         Task SellTickets(List<int> ticketsIds);
         Task DeleteTickets(List<int> ticketsIds);
+        public byte[] GetBulkTicketCreateTemplate();
+        Task BulkTicketCreate(IFormFile file, int sessionId);
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Tickets;
+using CinemaTicket.Infrastructure.Constants;
 
 namespace CinemaTicket.WebApi.Controllers
 {
@@ -71,6 +72,21 @@ namespace CinemaTicket.WebApi.Controllers
         public async Task DeleteTicketList(List<int> ticketsIds)
         {
             await ticketService.DeleteTickets(ticketsIds);
+        }
+        [HttpGet]
+        [Route("GetBulkTicketCreateTemlplate")]
+        [Authorize]
+        public IActionResult GetBulkTicketCreateTemplate()
+        {
+            var fileArray = ticketService.GetBulkTicketCreateTemplate();
+            return File(fileArray, ContetnType.Excel, BulkTicketCreateTemplate.Name);
+        }
+        [HttpPost]
+        [Route("BulkTicletCreate")]
+        [Authorize]
+        public async Task BulkTicketCreateTemplateAsync(IFormFile file, int sessionId)
+        {
+            await ticketService.BulkTicketCreate(file, sessionId);
         }
     }
 }

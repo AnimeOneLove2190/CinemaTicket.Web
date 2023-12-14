@@ -7,6 +7,7 @@ namespace CinemaTicket.Infrastructure.Constants
     public static class ExceptionMessageTemplate
     {
         public const string NotFound = "{0} with id {1} not found.";
+        public const string NotFoundNumber = "{0} with number {1} not found.";
         public const string SameNameAlreadyExist = "{0} with the same name ({1}) already exists.";
         public const string SameFieldValueAlreadyExist = "{0} with the same {1} field value already exists.";
         public const string RequestIsNull = "Request {0} is null.";
@@ -19,5 +20,6 @@ namespace CinemaTicket.Infrastructure.Constants
         public const string TicketIsSold = "Ticket with Id {0} has already been sold, it cannot be changed";
         public const string TicketsAreSold = "One or more tickets are sold";
         public const string WrongLoginOrPassword = "Wrong login or password";
+        public const string ColumnNotFound = "Column {0} not found";
     }
 }
