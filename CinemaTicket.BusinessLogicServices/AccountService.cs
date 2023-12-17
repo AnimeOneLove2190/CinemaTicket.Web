@@ -22,11 +22,13 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IAccountDataAccess accountDataAccess;
+        private readonly IValidationService validationService;
         private readonly ILogger<AccountService> logger;
-        public AccountService(IHttpContextAccessor httpContextAccessor, IAccountDataAccess accountDataAccess, ILogger<AccountService> logger)
+        public AccountService(IHttpContextAccessor httpContextAccessor, IAccountDataAccess accountDataAccess, ILogger<AccountService> logger, IValidationService validationService)
         {
             this.httpContextAccessor = httpContextAccessor;
             this.accountDataAccess = accountDataAccess;
+            this.validationService = validationService;
             this.logger = logger;
         }
         public async Task CreateAccountAsync(AccountCreateRequest accountCreateRequest)
@@ -58,12 +60,7 @@ namespace CinemaTicket.BusinessLogicServices
         {
             var user = httpContextAccessor.HttpContext.User.Identity.Name;
             var entity = await accountDataAccess.GetAccountAsync(user);
-            if(entity == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Account), user);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(user);
             return new AccountView()
             {
                 Id = entity.Id,
@@ -100,8 +97,7 @@ namespace CinemaTicket.BusinessLogicServices
             }
             else
             {
-                logger.LogError(ExceptionMessageTemplate.WrongLoginOrPassword);
-                throw new CustomException(ExceptionMessageTemplate.WrongLoginOrPassword);
+                validationService.ValidationWrongLoginOrPassword();
             }
         }
         public async Task LogoutAsync()
