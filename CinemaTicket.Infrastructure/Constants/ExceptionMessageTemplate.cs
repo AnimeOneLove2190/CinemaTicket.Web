@@ -10,6 +10,7 @@ namespace CinemaTicket.Infrastructure.Constants
         public const string NotFoundNumber = "{0} with number {1} not found.";
         public const string NotFoundName = "{0} with name ({1}) not found.";
         public const string SameNameAlreadyExist = "{0} with the same name ({1}) already exists.";
+        public const string SameNameAndDescriptionAlreadyExist = "{0} with the same name ({1}) and description already exists.";
         public const string SameFieldValueAlreadyExist = "{0} with the same {1} field value already exists.";
         public const string RequestIsNull = "Request {0} is null.";
         public const string FieldIsRequired = "Field {0} is required";

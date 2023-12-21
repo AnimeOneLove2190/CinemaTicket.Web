@@ -53,7 +53,7 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new NotFoundException(exceptionMessage);
             }
         }
-        public void ValidationNameAlreadyExist<T>(T entity, string name)
+        public void ValidationSameNameAlreadyExist<T>(T entity, string name)
         {
             if (entity != null)
             {
@@ -62,14 +62,38 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new CustomException(exceptionMessage);
             }
         }
-        public void ValidationFieldValueAlreadyExist<T>(T entity, int fieldValue)
+        public void ValidationSameNameAlreadyExist<T>(T entity, string name, int DTOId, int entityId)
         {
-            if (entity != null)
+            if (entity != null && DTOId != entityId)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, typeof(T).Name, fieldValue);
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, typeof(T).Name, name);
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
+        }
+        public void ValidationSameNameAndDescrtiptionAlreadyExist<T>(T entity, string entityName, string entityDescription, string DTODescription)
+        {
+            if (entity != null && entityDescription.ToLower() == DTODescription.ToLower())
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAndDescriptionAlreadyExist, typeof(T).Name, entityName);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
+        }
+        public void ValidationSameNameAndDescrtiptionAlreadyExist<T>(T entity, string entityName, int entityId, int DTOId)
+        {
+            if (entity != null && entityId != DTOId)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAndDescriptionAlreadyExist, typeof(T).Name, entityName);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
+        }
+        public void ValidationFieldValueAlreadyExist(string typeName, string fieldName)
+        {
+            var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, typeName, fieldName);
+            logger.LogError(exceptionMessage);
+            throw new CustomException(exceptionMessage);
         }
         public void ValidationRequestIsNull<T>(T model)
         {
@@ -89,18 +113,18 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new CustomException(exceptionMessage);
             }
         }
-        public void ValidationListNotFound<T>(T entity, int number)
+        public void ValidationListNotFound<T>(ICollection<T> entities)
         {
-            if (entity == null)
+            if (entities.Count == 0)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFoundNumber, typeof(T).Name, number);
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, typeof(T).Name);
                 logger.LogError(exceptionMessage);
                 throw new NotFoundException(exceptionMessage);
             }
         }
-        public void ValidationEntityHasSoldTickets<T>(T entity, List<Ticket> soldTickets)
+        public void ValidationEntityHasSoldTickets<T>(string typeName, ICollection<T> entities)
         {
-            if (soldTickets.Count > 0)
+            if (entities.Count > 0)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, typeof(T).Name);
                 logger.LogError(exceptionMessage);
@@ -110,6 +134,15 @@ namespace CinemaTicket.BusinessLogicServices
         public void ValidationCannotBeNullOrNegative<T>(T entity, string fieldName, int fieldValue)
         {
             if (fieldValue <= 0)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, typeof(T).Name, fieldName);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
+        }
+        public void ValidationCannotBeNullOrNegative<T>(T entity, string fieldName, DateTime fieldValue)
+        {
+            if (fieldValue == null)
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, typeof(T).Name, fieldName);
                 logger.LogError(exceptionMessage);
@@ -126,25 +159,27 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new CustomException(exceptionMessage);
             }
         }
-        public void ValidationNotAllFound(string listName)
+        public void ValidationNotAllFound<T>(ICollection<T> listFromDB, ICollection<T> listFromDTO, string listName)
         {
-            var exceptionMessage = string.Format(ExceptionMessageTemplate.NotAllFound, listName);
-            logger.LogError(exceptionMessage);
-            throw new CustomException(exceptionMessage);
-        }
-        public void ValidationTicketIsSold<T>(Ticket ticket)
-        {
-            if (ticket.IsSold)
+            if (listFromDB.Count != listFromDTO.Count)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.TicketIsSold, ticket.Id);
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotAllFound, listName);
                 logger.LogError(exceptionMessage);
                 throw new CustomException(exceptionMessage);
             }
         }
-        public void ValidationTicketsAreSold<T>(List<Ticket> tickets)
+        public void ValidationTicketIsSold(bool isSold, int ticketId)
         {
-            var soldTickets = tickets.Where(x => x.IsSold).ToList();
-            if (soldTickets.Count > 0)
+            if (isSold)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.TicketIsSold, ticketId);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
+        }
+        public void ValidationTicketsAreSold<T>(ICollection<T> listFromDB, ICollection<T> listRequest)
+        {
+            if (listFromDB.Count != listRequest.Count)
             {
                 logger.LogError(ExceptionMessageTemplate.TicketsAreSold);
                 throw new CustomException(ExceptionMessageTemplate.TicketsAreSold);

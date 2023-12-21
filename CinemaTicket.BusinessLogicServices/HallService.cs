@@ -21,33 +21,31 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
         private readonly IAccountService accountService;
+        private readonly IValidationService validationService;
         private readonly ILogger<HallService> logger;
-        public HallService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<HallService> logger, IAccountService accountService)
+        public HallService(
+            IHallDataAccess hallDataAccess, 
+            IRowDataAccess rowDataAccess, 
+            IPlaceDataAccess placeDataAccess, 
+            IValidationService validationService, 
+            ILogger<HallService> logger, 
+            IAccountService accountService)
         {
             this.hallDataAccess = hallDataAccess;
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
             this.accountService = accountService;
+            this.validationService = validationService;
             this.logger = logger;
         }
         public async Task CreateAsync(HallCreate hallCreate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (hallCreate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(HallCreate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(hallCreate);
             if (!string.IsNullOrEmpty(hallCreate.Name) || !string.IsNullOrWhiteSpace(hallCreate.Name))
             {
                 var hallFromDB = await hallDataAccess.GetHallAsync(hallCreate.Name);
-                if (hallFromDB != null)
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Hall), hallCreate.Name);
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
-                }
+                validationService.ValidationSameNameAlreadyExist(hallFromDB, hallCreate.Name);
             }
             var negativeNumbers = hallCreate.RowsNumbers.Where(x => x <= 0).ToList();
             if (negativeNumbers.Count > 0)
@@ -88,37 +86,14 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task UpdateAsync(HallUpdate hallUpdate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (hallUpdate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(HallUpdate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (hallUpdate.Id <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(HallUpdate), nameof(hallUpdate.Id));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(hallUpdate);
+            validationService.ValidationCannotBeNullOrNegative(hallUpdate, nameof(hallUpdate.Id), hallUpdate.Id);
             var hallFromDB = await hallDataAccess.GetHallAsync(hallUpdate.Id);
-            if (hallFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), hallUpdate.Id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(hallFromDB, hallUpdate.Id);
             if (!string.IsNullOrEmpty(hallUpdate.Name) || !string.IsNullOrWhiteSpace(hallUpdate.Name))
             {
                 var hallWithSameName = await hallDataAccess.GetHallAsync(hallUpdate.Name);
-                if (hallWithSameName != null)
-                {
-                    if (hallFromDB.Id != hallWithSameName.Id)
-                    {
-                        var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Hall), hallUpdate.Name);
-                        logger.LogError(exceptionMessage);
-                        throw new CustomException(exceptionMessage);
-                    }
-                }
+                validationService.ValidationSameNameAlreadyExist(hallWithSameName, hallWithSameName.Name, hallUpdate.Id, hallWithSameName.Id);
             }
             var soldPlacesInHall = new List<Place>();
             if (hallFromDB.Rows != null || hallFromDB.Rows.Count > 0)
@@ -178,12 +153,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<HallDetails> GetAsync(int id)
         {
             var hallFromDB = await hallDataAccess.GetHallAsync(id);
-            if (hallFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(hallFromDB, id);
             return new HallDetails
             {
                 Id = hallFromDB.Id,
@@ -221,12 +191,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task DeleteAsync(int id)
         {
             var hallFromDB = await hallDataAccess.GetHallAsync(id);
-            if (hallFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(hallFromDB, id);
             var soldPlacesInHall = new List<Place>();
             if (hallFromDB.Rows != null || hallFromDB.Rows.Count > 0)
             {
@@ -236,6 +201,7 @@ namespace CinemaTicket.BusinessLogicServices
                 foreach (var place in placesInHall)
                 {
                     var soldTickets = place.Tickets.Where(x => x.IsSold).ToList();
+                    validationService.ValidationEntityHasSoldTickets(nameof(Hall), soldTickets);
                     if (soldTickets.Count > 0)
                     {
                         var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Hall));

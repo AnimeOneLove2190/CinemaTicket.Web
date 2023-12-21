@@ -32,7 +32,7 @@ namespace CinemaTicket.BusinessLogicServices
             validationService.ValidationRequestIsNull(genreCreate);
             validationService.ValidationFieldIsRequiered(nameof(genreCreate.Name), genreCreate.Name);
             var genreFromDB = await genreDataAccess.GetGenreAsync(genreCreate.Name);
-            validationService.ValidationNameAlreadyExist(genreFromDB, genreCreate.Name);
+            validationService.ValidationSameNameAlreadyExist(genreFromDB, genreCreate.Name);
             var genre = new Genre
             {
                 Name = genreCreate.Name,
@@ -55,7 +55,7 @@ namespace CinemaTicket.BusinessLogicServices
             var genreWithSameName = await genreDataAccess.GetGenreAsync(genreUpdate.Name.ToLower());
             if (genreWithSameName != null && genreWithSameName.Id != genreFromDB.Id)
             {
-                validationService.ValidationNameAlreadyExist(genreWithSameName, genreUpdate.Name);
+                validationService.ValidationSameNameAlreadyExist(genreWithSameName, genreUpdate.Name);
             }
             genreFromDB.Name = genreUpdate.Name;
             genreFromDB.Description = genreUpdate.Description;

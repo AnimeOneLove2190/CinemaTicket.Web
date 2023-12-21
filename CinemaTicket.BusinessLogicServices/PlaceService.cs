@@ -18,57 +18,33 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IRowDataAccess rowDataAccess;
         private readonly IPlaceDataAccess placeDataAccess;
         private readonly IAccountService accountService;
+        private readonly IValidationService validationService;
         private readonly ILogger<PlaceService> logger;
-        public PlaceService(IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<PlaceService> logger, IAccountService accountService)
+        public PlaceService(IRowDataAccess rowDataAccess, 
+            IPlaceDataAccess placeDataAccess, 
+            ILogger<PlaceService> logger, 
+            IAccountService accountService, 
+            IValidationService validationService)
         {
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
             this.accountService = accountService;
+            this.validationService = validationService;
             this.logger = logger;
         }
         public async Task CreateAsync(PlaceCreate placeCreate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (placeCreate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(PlaceCreate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (placeCreate.RowId <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(PlaceCreate), nameof(placeCreate.RowId));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (placeCreate.Number <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(PlaceCreate), nameof(placeCreate.Number));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (placeCreate.Capacity <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(PlaceCreate), nameof(placeCreate.Capacity));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(placeCreate);
+            validationService.ValidationCannotBeNullOrNegative(placeCreate, nameof(placeCreate.RowId), placeCreate.RowId);
+            validationService.ValidationCannotBeNullOrNegative(placeCreate, nameof(placeCreate.Number), placeCreate.Number);
+            validationService.ValidationCannotBeNullOrNegative(placeCreate, nameof(placeCreate.Capacity), placeCreate.Capacity);
             var rowFromDB = await rowDataAccess.GetRowAsync(placeCreate.RowId);
-            if (rowFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), placeCreate.RowId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(rowFromDB, placeCreate.RowId);
             var rowsNumbers = rowFromDB.Places.Select(x => x.Number).ToList();
-            if (rowsNumbers != null)
+            if (rowsNumbers != null && rowsNumbers.Contains(placeCreate.Number))
             {
-                if (rowsNumbers.Contains(placeCreate.Number))
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Place), nameof(placeCreate.Number));
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
-                }
+                validationService.ValidationFieldValueAlreadyExist(nameof(Place), nameof(placeCreate.Number));
             }
             var place = new Place
             {
@@ -86,67 +62,22 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task UpdateAsync(PlaceUpdate placeUpdate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (placeUpdate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(PlaceUpdate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (placeUpdate.Id <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(PlaceUpdate), nameof(placeUpdate.Id));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (placeUpdate.RowId <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(PlaceUpdate), nameof(placeUpdate.RowId));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (placeUpdate.Number <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(PlaceUpdate), nameof(placeUpdate.Number));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (placeUpdate.Capacity <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(PlaceUpdate), nameof(placeUpdate.Capacity));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(placeUpdate);
+            validationService.ValidationCannotBeNullOrNegative(placeUpdate, nameof(placeUpdate.Id), placeUpdate.Id);
+            validationService.ValidationCannotBeNullOrNegative(placeUpdate, nameof(placeUpdate.RowId), placeUpdate.RowId);
+            validationService.ValidationCannotBeNullOrNegative(placeUpdate, nameof(placeUpdate.Number), placeUpdate.Number);
+            validationService.ValidationCannotBeNullOrNegative(placeUpdate, nameof(placeUpdate.Capacity), placeUpdate.Capacity);
             var placeFromDB = await placeDataAccess.GetPlaceAsync(placeUpdate.Id);
-            if (placeFromDB == null)
+            validationService.ValidationNotFound(placeFromDB, placeUpdate.Id);
+            var rowFromDB = await rowDataAccess.GetRowAsync(placeUpdate.RowId);
+            validationService.ValidationNotFound(rowFromDB, placeUpdate.RowId);
+            var placeWithTheSameNumber = rowFromDB.Places.FirstOrDefault(x => x.Number == placeUpdate.Number);
+            if (placeWithTheSameNumber != null && placeWithTheSameNumber.Id != placeUpdate.Id)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), placeUpdate.Id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
-            var rowRFromDB = await rowDataAccess.GetRowAsync(placeUpdate.RowId);
-            if (rowRFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), placeUpdate.RowId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
-            var placeWithTheSameNumber = rowRFromDB.Places.FirstOrDefault(x => x.Number == placeUpdate.Number);
-            if (placeWithTheSameNumber != null)
-            {
-                if (placeWithTheSameNumber.Id != placeUpdate.Id)
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Place), nameof(placeUpdate.Number));
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
-                }
+                validationService.ValidationFieldValueAlreadyExist(nameof(Place), nameof(placeUpdate.Number));
             }
             var soldTickets = placeFromDB.Tickets.Where(x => x.IsSold == true).ToList();
-            if (soldTickets.Count > 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Place));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationEntityHasSoldTickets(nameof(Place), soldTickets);
             placeFromDB.Number = placeUpdate.Number;
             placeFromDB.Capacity = placeUpdate.Capacity;
             placeFromDB.ModifiedOn = DateTime.UtcNow;
@@ -158,12 +89,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<PlaceDetails> GetAsync(int id)
         {
             var placeFromDB = await placeDataAccess.GetPlaceAsync(id);
-            if (placeFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(placeFromDB, id);
             return new PlaceDetails
             {
                 Id = placeFromDB.Id,
@@ -203,19 +129,9 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task DeleteAsync(int id)
         {
             var placeFromDB = await placeDataAccess.GetPlaceAsync(id);
-            if (placeFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
-            var soldTickets = placeFromDB.Tickets.Where(X => X.IsSold).ToList();
-            if (soldTickets.Count > 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Place));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(placeFromDB, id);
+            var soldTickets = placeFromDB.Tickets.Where(x => x.IsSold).ToList();
+            validationService.ValidationEntityHasSoldTickets(nameof(Place), soldTickets);
             placeDataAccess.Delete(placeFromDB);
             await placeDataAccess.CommitAsync();
         }
