@@ -28,8 +28,5 @@ namespace CinemaTicket.WebApi
                     logging.SetMinimumLevel(LogLevel.Trace);
                 })
                 .UseNLog();
-        //Add develop branch
-        //Add feature/602
-        //Add feature/604
     }
 }
