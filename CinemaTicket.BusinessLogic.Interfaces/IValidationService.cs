@@ -23,10 +23,12 @@ namespace CinemaTicket.BusinessLogic.Interfaces
         public void ValidationEntityHasSoldTickets<T>(string typeName, ICollection<T> entities);
         public void ValidationCannotBeNullOrNegative<T>(T entity, string fieldName, int fieldValue);
         public void ValidationCannotBeNullOrNegative<T>(T entity, string fieldName, DateTime fieldValue);
+        public void ValidationCannotBeNullOrNegative<T>(T entity, string fieldName, ICollection<int> fieldValues);
         public void ValidationDuplicate<T>(List<T> entities, string listName);
         public void ValidationNotAllFound<T>(ICollection<T> listFromDB, ICollection<T> listFromDTO, string listName);
         public void ValidationTicketIsSold(bool isSold, int ticketId);
         public void ValidationTicketsAreSold<T>(ICollection<T> listFromDB, ICollection<T> listRequest);
+        public void ValidationVariousHalls(int sessionHallId, int rowHallId);
         public void ValidationWrongLoginOrPassword();
         public void ValidationColumnNotFound();
     }

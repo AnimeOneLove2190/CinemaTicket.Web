@@ -48,12 +48,7 @@ namespace CinemaTicket.BusinessLogicServices
                 validationService.ValidationSameNameAlreadyExist(hallFromDB, hallCreate.Name);
             }
             var negativeNumbers = hallCreate.RowsNumbers.Where(x => x <= 0).ToList();
-            if (negativeNumbers.Count > 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, nameof(HallCreate), nameof(hallCreate.RowsNumbers));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationCannotBeNullOrNegative(hallCreate, nameof(hallCreate.RowsNumbers), negativeNumbers);
             var hall = new Hall
             {
                 Name = hallCreate.Name,
@@ -202,12 +197,6 @@ namespace CinemaTicket.BusinessLogicServices
                 {
                     var soldTickets = place.Tickets.Where(x => x.IsSold).ToList();
                     validationService.ValidationEntityHasSoldTickets(nameof(Hall), soldTickets);
-                    if (soldTickets.Count > 0)
-                    {
-                        var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Hall));
-                        logger.LogError(exceptionMessage);
-                        throw new CustomException(exceptionMessage);
-                    }
                 }
             }
             hallDataAccess.Delete(hallFromDB);

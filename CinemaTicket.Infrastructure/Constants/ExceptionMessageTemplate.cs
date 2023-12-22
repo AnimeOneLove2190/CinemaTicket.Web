@@ -21,6 +21,7 @@ namespace CinemaTicket.Infrastructure.Constants
         public const string NotAllFound = "Not all items from the {0} were found in the database";
         public const string TicketIsSold = "Ticket with Id {0} has already been sold, it cannot be changed";
         public const string TicketsAreSold = "One or more tickets are sold";
+        public const string VariousHalls = "The Hall specified in the Session and the Hall specified in the Plaсе do not match";
         public const string WrongLoginOrPassword = "Wrong login or password";
         public const string ColumnNotFound = "Column {0} not found";
     }

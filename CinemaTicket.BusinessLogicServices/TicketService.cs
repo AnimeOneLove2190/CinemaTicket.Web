@@ -90,12 +90,7 @@ namespace CinemaTicket.BusinessLogicServices
             var sessionFromDB = await sessionDataAccess.GetSessionAsync(ticketUpdate.SessionId);
             validationService.ValidationNotFound(sessionFromDB, ticketUpdate.SessionId);
             var rowFromDB = await rowDataAccess.GetRowAsync(placeFromDB.RowId);
-            if (sessionFromDB.HallId != rowFromDB.HallId)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), placeFromDB.RowId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationVariousHalls(sessionFromDB.HallId, rowFromDB.HallId);
             var ticketFromDB = await ticketDataAccess.GetTicketAsync(ticketUpdate.Id);
             validationService.ValidationNotFound(ticketFromDB, ticketUpdate.Id);
             validationService.ValidationTicketIsSold(ticketFromDB.IsSold, ticketFromDB.Id);

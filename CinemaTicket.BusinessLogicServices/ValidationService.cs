@@ -149,6 +149,15 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new CustomException(exceptionMessage);
             }
         }
+        public void ValidationCannotBeNullOrNegative<T>(T entity, string fieldName, ICollection<int> fieldValues)
+        {
+            if (fieldValues.Count > 0)
+            {
+                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegative, typeof(T).Name, fieldName);
+                logger.LogError(exceptionMessage);
+                throw new CustomException(exceptionMessage);
+            }
+        }
         public void ValidationDuplicate<T>(List<T> entities, string listName)
         {
             var uniqEntities = entities.Distinct().ToList();
@@ -183,6 +192,14 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 logger.LogError(ExceptionMessageTemplate.TicketsAreSold);
                 throw new CustomException(ExceptionMessageTemplate.TicketsAreSold);
+            }
+        }
+        public void ValidationVariousHalls(int sessionHallId, int rowHallId)
+        {
+            if (sessionHallId != rowHallId)
+            {
+                logger.LogError(ExceptionMessageTemplate.VariousHalls);
+                throw new CustomException(ExceptionMessageTemplate.VariousHalls);
             }
         }
         public void ValidationWrongLoginOrPassword()
