@@ -94,6 +94,11 @@ namespace CinemaTicket.BusinessLogicServices
             var ticketFromDB = await ticketDataAccess.GetTicketAsync(ticketUpdate.Id);
             validationService.ValidationNotFound(ticketFromDB, ticketUpdate.Id);
             validationService.ValidationTicketIsSold(ticketFromDB.IsSold, ticketFromDB.Id);
+            var tickeDuplicate = sessionFromDB.Tickets.FirstOrDefault(x => x.PlaceId == ticketUpdate.PlaceId);
+            if (tickeDuplicate != null && tickeDuplicate.Id != ticketUpdate.Id)
+            {
+                validationService.ValidationFieldValueAlreadyExist(nameof(Ticket), nameof(ticketUpdate.PlaceId));
+            }
             ticketFromDB.IsSold = ticketUpdate.IsSold;
             if (ticketUpdate.IsSold)
             {
