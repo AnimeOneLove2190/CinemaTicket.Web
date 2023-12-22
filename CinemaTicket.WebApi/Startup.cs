@@ -54,6 +54,7 @@ namespace CinemaTicket.WebApi
             services.AddScoped<IBaseDataAccess, BaseDataAccess>();
             services.AddScoped<IExcelService, ExcelService>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<IValidationService, ValidationService>();
 
             services.Configure<FileServiceSettings>(Configuration.GetSection("FileServiceSettings"));
 

@@ -17,35 +17,22 @@ namespace CinemaTicket.BusinessLogicServices
     {
         private readonly IGenreDataAccess genreDataAccess;
         private readonly IAccountService accountService;
+        private readonly IValidationService validationService;
         private readonly ILogger<GenreService> logger;
-        public GenreService(IGenreDataAccess genreDataAccess, ILogger<GenreService> logger, IAccountService accountService)
+        public GenreService(IGenreDataAccess genreDataAccess, ILogger<GenreService> logger, IAccountService accountService, IValidationService validationService)
         {
             this.genreDataAccess = genreDataAccess;
             this.accountService = accountService;
+            this.validationService = validationService;
             this.logger = logger;
         }
         public async Task CreateAsync(GenreCreate genreCreate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (genreCreate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(GenreCreate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (string.IsNullOrEmpty(genreCreate.Name) || string.IsNullOrWhiteSpace(genreCreate.Name))
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(genreCreate.Name));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(genreCreate);
+            validationService.ValidationFieldIsRequiered(nameof(genreCreate.Name), genreCreate.Name);
             var genreFromDB = await genreDataAccess.GetGenreAsync(genreCreate.Name);
-            if (genreFromDB != null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Genre), genreCreate.Name);
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationSameNameAlreadyExist(genreFromDB, genreCreate.Name);
             var genre = new Genre
             {
                 Name = genreCreate.Name,
@@ -61,34 +48,14 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task UpdateAsync(GenreUpdate genreUpdate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (genreUpdate.Id <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(GenreUpdate), nameof(genreUpdate.Id));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (string.IsNullOrEmpty(genreUpdate.Name) || string.IsNullOrWhiteSpace(genreUpdate.Name))
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(genreUpdate.Name));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationCannotBeNullOrNegative(genreUpdate, nameof(genreUpdate.Id), genreUpdate.Id);
+            validationService.ValidationFieldIsRequiered(nameof(genreUpdate.Name), genreUpdate.Name);
             var genreFromDB = await genreDataAccess.GetGenreAsync(genreUpdate.Id);
-            if (genreFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Genre), genreUpdate.Id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(genreUpdate, genreUpdate.Id);
             var genreWithSameName = await genreDataAccess.GetGenreAsync(genreUpdate.Name.ToLower());
-            if (genreWithSameName != null)
+            if (genreWithSameName != null && genreWithSameName.Id != genreFromDB.Id)
             {
-                if (genreWithSameName.Id != genreFromDB.Id)
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Genre), genreUpdate.Name);
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
-                }
+                validationService.ValidationSameNameAlreadyExist(genreWithSameName, genreUpdate.Name);
             }
             genreFromDB.Name = genreUpdate.Name;
             genreFromDB.Description = genreUpdate.Description;
@@ -100,12 +67,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<GenreDetails> GetAsync(int id)
         {
             var genreFromDB = await genreDataAccess.GetGenreAsync(id);
-            if (genreFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Genre), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(genreFromDB, id);
             return new GenreDetails
             {
                 Id = genreFromDB.Id,
@@ -131,12 +93,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task DeleteAsync(int id)
         {
             var genreFromDB = await genreDataAccess.GetGenreAsync(id);
-            if (genreFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Genre), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(genreFromDB, id);
             genreDataAccess.Delete(genreFromDB);
             await genreDataAccess.CommitAsync();
         }

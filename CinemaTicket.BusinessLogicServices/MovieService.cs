@@ -25,40 +25,28 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IGenreDataAccess genreDataAccess;
         private readonly IAccountService accountService;
         private readonly FileServiceSettings fileServiceSettings;
+        private readonly IValidationService validationService;
         private readonly ILogger<MovieService> logger;
         public MovieService(IMovieDataAccess movieDataAccess, 
             IGenreDataAccess genreDataAccess, 
             ILogger<MovieService> logger, 
-            IAccountService accountService, 
+            IAccountService accountService,
+            IValidationService validationService,
             IOptions<FileServiceSettings> fileServiceSettings)
         {
             this.movieDataAccess = movieDataAccess;
             this.genreDataAccess = genreDataAccess;
             this.accountService = accountService;
             this.logger = logger;
+            this.validationService = validationService;
             this.fileServiceSettings = fileServiceSettings.Value;
         }
         public async Task CreateAsync(MovieCreate movieCreate) 
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (string.IsNullOrEmpty(movieCreate.Name) || string.IsNullOrWhiteSpace(movieCreate.Name))
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieCreate.Name));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (string.IsNullOrEmpty(movieCreate.Description) || string.IsNullOrWhiteSpace(movieCreate.Description))
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieCreate.Name));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (movieCreate.Duration <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(MovieCreate), nameof(movieCreate.Duration));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationFieldIsRequiered(nameof(movieCreate.Name), movieCreate.Name);
+            validationService.ValidationFieldIsRequiered(nameof(movieCreate.Description), movieCreate.Description);
+            validationService.ValidationCannotBeNullOrNegative(movieCreate, nameof(movieCreate.Duration), movieCreate.Duration);
             if (movieCreate.GenreNames.Count > 0)
             {
                 foreach (var genreName in movieCreate.GenreNames)
@@ -72,15 +60,7 @@ namespace CinemaTicket.BusinessLogicServices
             var movieListFromDB = await movieDataAccess.GetMovieListAsync(movieCreate.Name);
             foreach (var movieFromDB in movieListFromDB)
             {
-                if (movieFromDB != null)
-                {
-                    if (movieFromDB.Name.ToLower() == movieCreate.Name.ToLower() && movieFromDB.Description.ToLower() == movieCreate.Description.ToLower())
-                    {
-                        var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieCreate.Name);
-                        logger.LogError(exceptionMessage);
-                        throw new CustomException(exceptionMessage);
-                    }
-                }
+                validationService.ValidationSameNameAndDescrtiptionAlreadyExist(movieFromDB, movieFromDB.Name, movieFromDB.Description, movieCreate.Description);
             }
             var movie = new Movie
             {
@@ -123,46 +103,15 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task UpdateAsync(MovieUpdate movieUpdate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (string.IsNullOrEmpty(movieUpdate.Name) || string.IsNullOrWhiteSpace(movieUpdate.Name))
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieUpdate.Name));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (string.IsNullOrEmpty(movieUpdate.Description) || string.IsNullOrWhiteSpace(movieUpdate.Description))
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.FieldIsRequired, nameof(movieUpdate.Description));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (movieUpdate.Duration <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(MovieUpdate), nameof(movieUpdate.Duration));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationFieldIsRequiered(nameof(movieUpdate.Name), movieUpdate.Name);
+            validationService.ValidationFieldIsRequiered(nameof(movieUpdate.Description), movieUpdate.Description);
+            validationService.ValidationCannotBeNullOrNegative(movieUpdate, nameof(movieUpdate.Duration), movieUpdate.Duration);
             var movieFromDB = await movieDataAccess.GetMovieAsync(movieUpdate.Id);
-            if (movieFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), movieUpdate.Id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
-            var uniqGenreIds = movieUpdate.GenreIds.Distinct().ToList();
-            if (uniqGenreIds.Count != movieUpdate.GenreIds.Count)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.Duplicate, nameof(movieUpdate.GenreIds));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(movieFromDB, movieUpdate.Id);
+            validationService.ValidationDuplicate(movieUpdate.GenreIds, nameof(movieUpdate.GenreIds));
             var movieListFromDB = await movieDataAccess.GetMovieListAsync(movieUpdate.Name);
             var movieWithSameName = movieListFromDB.FirstOrDefault(x => x.Name.ToLower() == movieUpdate.Name.ToLower() && x.Description.ToLower() == movieUpdate.Description.ToLower());
-            if (movieWithSameName != null && movieWithSameName.Id != movieFromDB.Id)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameNameAlreadyExist, nameof(Movie), movieUpdate.Name);
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationSameNameAndDescrtiptionAlreadyExist(movieWithSameName, movieWithSameName.Name, movieWithSameName.Id, movieUpdate.Id);
             if (movieUpdate.GenreIds == null)
             {
                 movieUpdate.GenreIds = new List<int>();
@@ -180,18 +129,17 @@ namespace CinemaTicket.BusinessLogicServices
         {
             var currentUser = await accountService.GetAccountAsync();
 
-            var genres = await genreDataAccess.GetGenreListAsync(genreIds);
-            if (genres.Count != genreIds.Count)
+            var genresFromDB = await genreDataAccess.GetGenreListAsync(genreIds);
+            var genreIdsFromDB = genresFromDB.Select(x => x.Id).ToList();
+            if (genresFromDB.Count != genreIds.Count)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotAllFound, nameof(genreIds));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
+                validationService.ValidationNotAllFound(genreIdsFromDB, genreIds, nameof(genreIds));
             }
             var oldGenreIds = movie.Genres.Select(x => x.Id).ToList();
             var newGenreIds = genreIds.Except(oldGenreIds).ToList();
             var removeGenreIds = oldGenreIds.Except(genreIds).ToList();
             var removeGenres = movie.Genres.Where(x => removeGenreIds.Contains(x.Id)).ToList();
-            var newGenres = genres.Where(x => newGenreIds.Contains(x.Id)).ToList();
+            var newGenres = genresFromDB.Where(x => newGenreIds.Contains(x.Id)).ToList();
             foreach (var genre in removeGenres)
             {
                 movie.Genres.Remove(genre);
@@ -208,12 +156,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<MovieDetails> GetAsync(int id)
         {
             var movieFromDB = await movieDataAccess.GetMovieAsync(id);
-            if (movieFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(movieFromDB, id);
             return new MovieDetails
             {
                 Id = movieFromDB.Id,
@@ -267,12 +210,7 @@ namespace CinemaTicket.BusinessLogicServices
         {
             var currentUser = await accountService.GetAccountAsync();
             var movieFromDB = await movieDataAccess.GetMovieAsync(movieId);
-            if (movieFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), movieId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(movieFromDB, movieId);
             string posterFileName = null;
             if (posterFile != null && posterFile.Length != 0)
             {
@@ -304,12 +242,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<PosterView> GetPosterAsync(int movieId)
         {
             var movieFromDB = await movieDataAccess.GetMovieAsync(movieId);
-            if (movieFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie), movieId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(movieFromDB, movieId);
             if (string.IsNullOrEmpty(movieFromDB.PosterFileName))
             {
                 var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Movie.PosterFileName), movieId);

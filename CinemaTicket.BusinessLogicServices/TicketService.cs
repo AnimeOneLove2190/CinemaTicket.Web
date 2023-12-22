@@ -27,6 +27,7 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IAccountService accountService;
         private readonly IExcelService excelService;
         private readonly ILogger<TicketService> logger;
+        private readonly IValidationService validationService;
         public TicketService(ISessionDataAccess sessionDataAccess,
             IRowDataAccess rowDataAccess, 
             IPlaceDataAccess placeDataAccess,
@@ -35,7 +36,8 @@ namespace CinemaTicket.BusinessLogicServices
             IHallDataAccess hallDataAccess,
             IAccountService accountService,
             IExcelService excelService,
-            ILogger<TicketService> logger)
+            ILogger<TicketService> logger,
+            IValidationService validationService)
         {
             this.hallDataAccess = hallDataAccess;
             this.movieDataAccess = movieDataAccess;
@@ -46,42 +48,21 @@ namespace CinemaTicket.BusinessLogicServices
             this.accountService = accountService;
             this.excelService = excelService;
             this.logger = logger;
+            this.validationService = validationService;
         }
         public async Task CreateAsync(TicketCreate ticketCreate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (ticketCreate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(TicketCreate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (ticketCreate.Price <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(TicketCreate), nameof(ticketCreate.Price));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(ticketCreate);
+            validationService.ValidationCannotBeNullOrNegative(ticketCreate, nameof(ticketCreate.Price), ticketCreate.Price);
             var placeFromDB = await placeDataAccess.GetPlaceAsync(ticketCreate.PlaceId);
-            if (placeFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), ticketCreate.PlaceId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(placeFromDB, ticketCreate.PlaceId);
             var sessionFromDB = await sessionDataAccess.GetSessionAsync(ticketCreate.SessionId);
-            if (sessionFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Session), ticketCreate.SessionId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(sessionFromDB, ticketCreate.SessionId);
             var tickeDuplicate = sessionFromDB.Tickets.FirstOrDefault(x => x.PlaceId == ticketCreate.PlaceId);
             if (tickeDuplicate != null)
             {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Place), nameof(ticketCreate.PlaceId));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
+                validationService.ValidationFieldValueAlreadyExist(nameof(Ticket), nameof(ticketCreate.PlaceId));
             }
             var ticket = new Ticket
             {
@@ -101,58 +82,18 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task UpdateAsync(TicketUpdate ticketUpdate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (ticketUpdate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(TicketUpdate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (ticketUpdate.Id <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(TicketCreate), nameof(ticketUpdate.Id));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (ticketUpdate.Price <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(TicketCreate), nameof(ticketUpdate.Price));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(ticketUpdate);
+            validationService.ValidationCannotBeNullOrNegative(ticketUpdate, nameof(ticketUpdate.Id), ticketUpdate.Id);
+            validationService.ValidationCannotBeNullOrNegative(ticketUpdate, nameof(ticketUpdate.Price), ticketUpdate.Price);
             var placeFromDB = await placeDataAccess.GetPlaceAsync(ticketUpdate.PlaceId);
-            if (placeFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Place), ticketUpdate.PlaceId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(placeFromDB, ticketUpdate.PlaceId);
             var sessionFromDB = await sessionDataAccess.GetSessionAsync(ticketUpdate.SessionId);
-            if (sessionFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Session), ticketUpdate.SessionId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(sessionFromDB, ticketUpdate.SessionId);
             var rowFromDB = await rowDataAccess.GetRowAsync(placeFromDB.RowId);
-            if (sessionFromDB.HallId != rowFromDB.HallId)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), placeFromDB.RowId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationVariousHalls(sessionFromDB.HallId, rowFromDB.HallId);
             var ticketFromDB = await ticketDataAccess.GetTicketAsync(ticketUpdate.Id);
-            if (ticketFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Ticket), ticketUpdate.Id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
-            if (ticketFromDB.IsSold)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.TicketIsSold, ticketUpdate.Id);
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(ticketFromDB, ticketUpdate.Id);
+            validationService.ValidationTicketIsSold(ticketFromDB.IsSold, ticketFromDB.Id);
             ticketFromDB.IsSold = ticketUpdate.IsSold;
             if (ticketUpdate.IsSold)
             {
@@ -169,12 +110,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<TicketDetails> GetAsync(int id)
         {
             var ticketFromDB = await ticketDataAccess.GetTicketAsync(id);
-            if (ticketFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Ticket), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(ticketFromDB, id);
             return new TicketDetails
             {
                 Id = ticketFromDB.Id,
@@ -206,37 +142,17 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task DeleteAsync(int id)
         {
             var ticketFromDB = await ticketDataAccess.GetTicketAsync(id);
-            if (ticketFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Ticket), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
-            if (ticketFromDB.IsSold)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.TicketIsSold, id);
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(ticketFromDB, id);
+            validationService.ValidationTicketIsSold(ticketFromDB.IsSold, ticketFromDB.Id);
             ticketDataAccess.Delete(ticketFromDB);
             await ticketDataAccess.CommitAsync();
         }
         public async Task<List<TicketView>> GetTicketViewList(int sessionId, bool? isSold)
         {
             var sessionFromDB = await sessionDataAccess.GetSessionAsync(sessionId);
-            if (sessionFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Session), sessionId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(sessionFromDB, sessionId);
             var hallFromDB = await hallDataAccess.GetHallAsync(sessionFromDB.HallId);
-            if (hallFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), sessionFromDB.HallId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(hallFromDB, sessionFromDB.HallId);
             if (sessionFromDB.Tickets == null)
             {
                 return new List<TicketView>();
@@ -250,12 +166,7 @@ namespace CinemaTicket.BusinessLogicServices
                 foreach (var ticket in filteredTickets)
                 {
                     var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == ticket.Place.RowId);
-                    if (rowOnTheTicket == null)
-                    {
-                        var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), ticket.Place.RowId);
-                        logger.LogError(exceptionMessage);
-                        throw new NotFoundException(exceptionMessage);
-                    }
+                    validationService.ValidationNotFound(rowOnTheTicket, ticket.Place.RowId);
                     ticketViewList.Add(new TicketView
                     {
                         Id = ticket.Id,
@@ -274,12 +185,7 @@ namespace CinemaTicket.BusinessLogicServices
                 foreach (var ticket in allTickets)
                 {
                     var rowOnTheTicket = rowsInHall.FirstOrDefault(x => x.Id == ticket.Place.RowId);
-                    if (rowOnTheTicket == null)
-                    {
-                        var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), ticket.Place.RowId);
-                        logger.LogError(exceptionMessage);
-                        throw new NotFoundException(exceptionMessage);
-                    }
+                    validationService.ValidationNotFound(rowOnTheTicket, ticket.Place.RowId);
                     ticketViewList.Add(new TicketView
                     {
                         Id = ticket.Id,
@@ -298,19 +204,10 @@ namespace CinemaTicket.BusinessLogicServices
         {
             var currentUser = await accountService.GetAccountAsync();
             var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
-            if (ticketsFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Ticket));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationListNotFound(ticketsFromDB);
             var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
-            if (unsoldTickets.Count != ticketsIds.Count)
-            {
-                var exceptionMessage = ExceptionMessageTemplate.TicketsAreSold;
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            var unsoldTicketsIds = unsoldTickets.Select(x => x.Id).ToList();
+            validationService.ValidationTicketsAreSold(unsoldTicketsIds, ticketsIds);
             var ticketsToUpdate = unsoldTickets;
             foreach (var ticket in ticketsToUpdate)
             {
@@ -329,19 +226,10 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task DeleteTickets(List<int> ticketsIds)
         {
             var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
-            if (ticketsFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.ListNotFound, nameof(Ticket));
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationListNotFound(ticketsFromDB);
             var unsoldTickets = ticketsFromDB.Where(x => !x.IsSold).ToList();
-            if (unsoldTickets.Count != ticketsIds.Count)
-            {
-                var exceptionMessage = ExceptionMessageTemplate.TicketsAreSold;
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            var unsoldTicketsIds = unsoldTickets.Select(x => x.Id).ToList();
+            validationService.ValidationTicketsAreSold(unsoldTicketsIds, ticketsIds);
             ticketDataAccess.DeleteList(unsoldTickets);
             await ticketDataAccess.CommitAsync();
         }
@@ -359,19 +247,10 @@ namespace CinemaTicket.BusinessLogicServices
                 throw new CustomException(exceptionMessage);
             }
             var sessionFromDB = await sessionDataAccess.GetSessionAsync(sessionId);
-            if (sessionFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Session), sessionId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(sessionFromDB, sessionId);
             var hallFromDB = await hallDataAccess.GetHallAsync(sessionFromDB.HallId);
-            if (hallFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), sessionFromDB.HallId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(hallFromDB, sessionFromDB.HallId);
+
             using (var stream = new MemoryStream())
             {
                 file.CopyTo(stream);
@@ -410,34 +289,18 @@ namespace CinemaTicket.BusinessLogicServices
             {
                 var rowNumber = int.Parse(worksheet.Cells[row, columnIndexes[BulkTicketCreateTemplate.Column.RowNumber]].Value.ToString());
                 var rowInHall = rows.FirstOrDefault(x => x.Number == rowNumber);
-                if (rowInHall == null)
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFoundNumber, nameof(Row), rowNumber);
-                    logger.LogError(exceptionMessage);
-                    throw new NotFoundException(exceptionMessage);
-                }
+                validationService.ValidationNotFoundNumber(rowInHall, rowNumber);
                 var placeNumber = int.Parse(worksheet.Cells[row, columnIndexes[BulkTicketCreateTemplate.Column.PlaceNumber]].Value.ToString());
                 var placeInHall = rowInHall.Places.FirstOrDefault(x => x.Number == placeNumber);
-                if (placeInHall == null)
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFoundNumber, nameof(Place), placeNumber);
-                    logger.LogError(exceptionMessage);
-                    throw new NotFoundException(exceptionMessage);
-                }
+                validationService.ValidationNotFoundNumber(placeInHall, placeNumber);
                 var existTicket = session.Tickets.FirstOrDefault(x => x.PlaceId == placeInHall.Id);
                 if (existTicket != null)
                 {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Ticket), existTicket.PlaceId);
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
+                    validationService.ValidationFieldValueAlreadyExist(nameof(Ticket), nameof(existTicket.PlaceId));
                 }
                 var price = int.Parse(worksheet.Cells[row, columnIndexes[BulkTicketCreateTemplate.Column.Price]].Value.ToString());
-                if (price <= 0)
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(Ticket), nameof(Ticket.Price));
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
-                }
+                var stub = new Ticket();
+                validationService.ValidationCannotBeNullOrNegative(stub, nameof(stub.Price), price);
                 var excelData = new TicketCreate
                 {
                     SessionId = session.Id,

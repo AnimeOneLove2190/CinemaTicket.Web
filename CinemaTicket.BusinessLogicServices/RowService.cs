@@ -20,58 +20,35 @@ namespace CinemaTicket.BusinessLogicServices
         private readonly IPlaceDataAccess placeDataAccess;
         private readonly IAccountService accountService;
         private readonly ILogger<RowService> logger;
+        private readonly IValidationService validationService;
 
-        public RowService(IHallDataAccess hallDataAccess, IRowDataAccess rowDataAccess, IPlaceDataAccess placeDataAccess, ILogger<RowService> logger, IAccountService accountService)
+        public RowService(IHallDataAccess hallDataAccess, 
+            IRowDataAccess rowDataAccess, 
+            IPlaceDataAccess placeDataAccess, 
+            ILogger<RowService> logger, 
+            IAccountService accountService, 
+            IValidationService validationService)
         {
             this.hallDataAccess = hallDataAccess;
             this.rowDataAccess = rowDataAccess;
             this.placeDataAccess = placeDataAccess;
             this.accountService = accountService;
             this.logger = logger;
+            this.validationService = validationService;
         }
         public async Task CreateAsync(RowCreate rowCreate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (rowCreate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(RowCreate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (rowCreate.HallId <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowCreate), nameof(rowCreate.HallId));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (rowCreate.Number <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowCreate), nameof(rowCreate.Number));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (rowCreate.PlaceCapacity <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowCreate), nameof(rowCreate.PlaceCapacity));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(rowCreate);
+            validationService.ValidationCannotBeNullOrNegative(rowCreate, nameof(rowCreate.HallId), rowCreate.HallId);
+            validationService.ValidationCannotBeNullOrNegative(rowCreate, nameof(rowCreate.Number), rowCreate.Number);
+            validationService.ValidationCannotBeNullOrNegative(rowCreate, nameof(rowCreate.PlaceCapacity), rowCreate.PlaceCapacity);
             var hallFromDB = await hallDataAccess.GetHallAsync(rowCreate.HallId);
-            if (hallFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), rowCreate.HallId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(hallFromDB, rowCreate.HallId);
             var rowsNumbers = hallFromDB.Rows.Select(x => x.Number).ToList();
-            if (rowsNumbers != null)
+            if (rowsNumbers != null && rowsNumbers.Contains(rowCreate.Number))
             {
-                if (rowsNumbers.Contains(rowCreate.Number))
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Row), nameof(rowCreate.Number));
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
-                }
+                validationService.ValidationFieldValueAlreadyExist(nameof(Row), nameof(rowCreate.Number));
             }
             var row = new Row
             {
@@ -107,60 +84,20 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task UpdateAsync(RowUpdate rowUpdate)
         {
             var currentUser = await accountService.GetAccountAsync();
-            if (rowUpdate == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.RequestIsNull, nameof(RowUpdate));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (rowUpdate.Id <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowUpdate), nameof(rowUpdate.Id));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (rowUpdate.HallId <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowUpdate), nameof(rowUpdate.HallId));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (rowUpdate.Number <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowUpdate), nameof(rowUpdate.Number));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
-            if (rowUpdate.PlaceCapacity <= 0)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.CannotBeNullOrNegatevie, nameof(RowUpdate), nameof(rowUpdate.PlaceCapacity));
-                logger.LogError(exceptionMessage);
-                throw new CustomException(exceptionMessage);
-            }
+            validationService.ValidationRequestIsNull(rowUpdate);
+            validationService.ValidationCannotBeNullOrNegative(rowUpdate, nameof(rowUpdate.Id), rowUpdate.Id);
+            validationService.ValidationCannotBeNullOrNegative(rowUpdate, nameof(rowUpdate.HallId), rowUpdate.HallId);
+            validationService.ValidationCannotBeNullOrNegative(rowUpdate, nameof(rowUpdate.Number), rowUpdate.Number);
+            validationService.ValidationCannotBeNullOrNegative(rowUpdate, nameof(rowUpdate.PlaceCapacity), rowUpdate.PlaceCapacity);
             var hallFromDB = await hallDataAccess.GetHallAsync(rowUpdate.HallId);
-            if (hallFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Hall), rowUpdate.HallId);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(hallFromDB, rowUpdate.HallId);
             var rowWithTheSameNumber = hallFromDB.Rows.FirstOrDefault(x => x.Number == rowUpdate.Number);
-            if (rowWithTheSameNumber != null)
+            if (rowWithTheSameNumber != null && rowWithTheSameNumber.Id != rowUpdate.Id)
             {
-                if (rowWithTheSameNumber.Id != rowUpdate.Id)
-                {
-                    var exceptionMessage = string.Format(ExceptionMessageTemplate.SameFieldValueAlreadyExist, nameof(Row), nameof(rowUpdate.Number));
-                    logger.LogError(exceptionMessage);
-                    throw new CustomException(exceptionMessage);
-                }
+                validationService.ValidationFieldValueAlreadyExist(nameof(Row), nameof(rowUpdate.Number));
             }
             var rowFromDB = await rowDataAccess.GetRowAsync(rowUpdate.Id);
-            if (rowFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), rowUpdate.Id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(rowFromDB, rowUpdate.Id);
             var soldPlacesInRow = new List<Place>();
             if (rowFromDB.Places != null && rowFromDB.Places.Count > 0)
             {
@@ -219,12 +156,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task<RowDetails> GetAsync(int id)
         {
             var rowFromDB = await rowDataAccess.GetRowAsync(id);
-            if (rowFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(rowFromDB, id);
             return new RowDetails
             {
                 Id = rowFromDB.Id,
@@ -258,12 +190,7 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task DeleteAsync(int id)
         {
             var rowFromDB = await rowDataAccess.GetRowAsync(id);
-            if (rowFromDB == null)
-            {
-                var exceptionMessage = string.Format(ExceptionMessageTemplate.NotFound, nameof(Row), id);
-                logger.LogError(exceptionMessage);
-                throw new NotFoundException(exceptionMessage);
-            }
+            validationService.ValidationNotFound(rowFromDB, id);
             var soldPlacesInRow = new List<Place>();
             if (rowFromDB.Places != null && rowFromDB.Places.Count > 0)
             {
@@ -273,12 +200,7 @@ namespace CinemaTicket.BusinessLogicServices
                 {
                     var soldTickets = new List<Ticket>();
                     soldTickets = place.Tickets.Where(x => x.IsSold).ToList();
-                    if (soldTickets.Count > 0)
-                    {
-                        var exceptionMessage = string.Format(ExceptionMessageTemplate.EntityHasSoldTickets, nameof(Row));
-                        logger.LogError(exceptionMessage);
-                        throw new CustomException(exceptionMessage);
-                    }
+                    validationService.ValidationEntityHasSoldTickets(nameof(Row), soldTickets);
                 }
             }
             rowDataAccess.Delete(rowFromDB);
