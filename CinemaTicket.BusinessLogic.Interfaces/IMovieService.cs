@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using CinemaTicket.Entities;
 using CinemaTicket.DataTransferObjects.Movies;
 using CinemaTicket.Infrastructure.Helpers;
 

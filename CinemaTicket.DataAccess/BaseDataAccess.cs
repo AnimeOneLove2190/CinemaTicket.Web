@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -35,7 +33,6 @@ namespace CinemaTicket.DataAccess
         {
             foreach (var entity in entities)
             {
-                //TODO поле ModifiedOn здесь недоступно, изменять это поле нужно заранее в сервисах
                 cinemaManagerContext.Entry(entity).State = EntityState.Modified;
             }
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using CinemaTicket.DataTransferObjects.Places;
 
 namespace CinemaTicket.DataTransferObjects.Rows

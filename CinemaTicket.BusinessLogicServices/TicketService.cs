@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
-using CinemaTicket.DataTransferObjects.Sessions;
 using CinemaTicket.DataTransferObjects.Tickets;
 using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.Infrastructure.Constants;
