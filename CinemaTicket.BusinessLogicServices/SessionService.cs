@@ -116,13 +116,10 @@ namespace CinemaTicket.BusinessLogicServices
             sessionFromDB.ModifiedBy = currentUser.Id;
             sessionFromDB.MovieId = sessionUpdate.MovieId;
             sessionFromDB.HallId = sessionUpdate.HallId;
-            if (sessionFromDB.HallId != sessionUpdate.HallId)
-            {
-                var deleteTickets = sessionFromDB.Tickets.ToList();
-                ticketDataAccess.DeleteList(deleteTickets);
-            }
             sessionDataAccess.Update(sessionFromDB);
             var ticketsInHall = new List<Ticket>();
+            var deleteTickets = sessionFromDB.Tickets.ToList();
+            ticketDataAccess.DeleteList(deleteTickets);
             foreach (var place in placesInHall)
             {
                 ticketsInHall.Add(new Ticket
