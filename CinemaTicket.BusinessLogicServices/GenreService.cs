@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -8,8 +7,6 @@ using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataAccess.Interfaces;
 using CinemaTicket.DataTransferObjects.Genres;
-using CinemaTicket.Infrastructure.Constants;
-using CinemaTicket.Infrastructure.Exceptions;
 
 namespace CinemaTicket.BusinessLogicServices
 {

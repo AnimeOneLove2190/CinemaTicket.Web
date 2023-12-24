@@ -8,8 +8,6 @@ using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataTransferObjects.Sessions;
 using CinemaTicket.DataTransferObjects.Tickets;
 using CinemaTicket.DataAccess.Interfaces;
-using CinemaTicket.Infrastructure.Constants;
-using CinemaTicket.Infrastructure.Exceptions;
 
 namespace CinemaTicket.BusinessLogicServices
 {

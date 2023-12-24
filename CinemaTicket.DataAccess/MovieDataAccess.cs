@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +26,7 @@ namespace CinemaTicket.DataAccess
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).AsNoTracking().ToListAsync();
         }
-        public async Task<List<Movie>> GetMovieListAsync(List<int> movieIds) // Вдруг пригодится
+        public async Task<List<Movie>> GetMovieListAsync(List<int> movieIds)
         {
             return await cinemaManagerContext.Movies.Include(x => x.Genres).Where(x => movieIds.Contains(x.Id)).ToListAsync();
         }

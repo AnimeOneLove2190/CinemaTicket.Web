@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using CinemaTicket.Infrastructure.Constants;
 using CinemaTicket.Infrastructure.Exceptions;
-using CinemaTicket.Entities;
 using CinemaTicket.BusinessLogic.Interfaces;
 
 namespace CinemaTicket.BusinessLogicServices

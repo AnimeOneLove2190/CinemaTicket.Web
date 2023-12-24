@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using OfficeOpenXml;
-using CinemaTicket.Entities;
 using CinemaTicket.Infrastructure.Constants;
 using CinemaTicket.BusinessLogic.Interfaces;
 using CinemaTicket.DataAccess.Interfaces;
@@ -34,7 +32,7 @@ namespace CinemaTicket.BusinessLogicServices
                 return fileBytes;
             }
         }
-        public async Task<List<Dictionary<string, object>>> GetIncomeReportData(DateTime startDate, DateTime endDate) // TODO установить microsoftExcel и проверить, эта неведомая хрень вообще рабоает или нет
+        public async Task<List<Dictionary<string, object>>> GetIncomeReportData(DateTime startDate, DateTime endDate)
         {
             var sessions = await sessionDataAccess.GetListForReportAsync(startDate, endDate);
             var dataList = new List<Dictionary<string, object>>();
@@ -45,7 +43,7 @@ namespace CinemaTicket.BusinessLogicServices
                 var recordDict = new Dictionary<string, object>
                 {
                     [ReportTemplate.IncomeReport.Column.DateOfDay] = oneDay.ToString("dd.MM.yyyy"),
-                    [ReportTemplate.IncomeReport.Column.MoviesNames] = string.Join(',', sessionsInDay.Select(x => x.Movie.Name).Distinct().ToList()), // TODO особое внимание этой неведомой хрени
+                    [ReportTemplate.IncomeReport.Column.MoviesNames] = string.Join(',', sessionsInDay.Select(x => x.Movie.Name).Distinct().ToList()),
                     [ReportTemplate.IncomeReport.Column.SeansCount] = sessionsInDay.Count(),
                     [ReportTemplate.IncomeReport.Column.AmountOfIncome] = sessionsInDay.SelectMany(x => x.Tickets).Where(x => x.IsSold).Select(x => x.Price).ToList().Sum()
                 };
