@@ -111,34 +111,66 @@ namespace CinemaTicket.BusinessLogicServices
             validationService.ValidationListNotFound(placesInHall);
             var movieFromDB = await movieDataAccess.GetMovieAsync(sessionUpdate.MovieId);
             validationService.ValidationNotFound(movieFromDB, sessionUpdate.MovieId);
+            if (sessionFromDB.HallId != sessionUpdate.HallId)
+            {
+                var deleteTickets = sessionFromDB.Tickets.ToList();
+                ticketDataAccess.DeleteList(deleteTickets);
+                var ticketsInHall = new List<Ticket>();
+                foreach (var place in placesInHall)
+                {
+                    ticketsInHall.Add(new Ticket
+                    {
+                        IsSold = false,
+                        DateOfSale = null,
+                        Price = sessionUpdate.Price,
+                        CreatedOn = DateTime.UtcNow,
+                        ModifiedOn = DateTime.UtcNow,
+                        CreatedBy = currentUser.Id,
+                        ModifiedBy = currentUser.Id,
+                        PlaceId = place.Id,
+                        Session = sessionFromDB
+                    });
+                }
+                await ticketDataAccess.CreateListAsync(ticketsInHall);
+            }
+            else
+            {
+                var ticketsUpdate = sessionFromDB.Tickets.ToList();
+                var ticketsCreate = new List<Ticket>();
+                foreach (var place in placesInHall)
+                {
+                    var ticketInPlace = ticketsUpdate.FirstOrDefault(x => x.PlaceId == place.Id);
+                    if (ticketInPlace != null)
+                    {
+                        ticketInPlace.Price = sessionUpdate.Price;
+                        ticketInPlace.ModifiedOn = DateTime.UtcNow;
+                        ticketInPlace.ModifiedBy = currentUser.Id;
+                    }
+                    else
+                    {
+                        ticketsCreate.Add(new Ticket
+                        {
+                            IsSold = false,
+                            DateOfSale = null,
+                            Price = sessionUpdate.Price,
+                            CreatedOn = DateTime.UtcNow,
+                            ModifiedOn = DateTime.UtcNow,
+                            CreatedBy = currentUser.Id,
+                            ModifiedBy = currentUser.Id,
+                            PlaceId = place.Id,
+                            Session = sessionFromDB
+                        });
+                    }
+                }
+                ticketDataAccess.UpdateList(ticketsUpdate);
+                await ticketDataAccess.CreateListAsync(ticketsCreate);
+            }
             sessionFromDB.Start = sessionUpdate.Start;
             sessionFromDB.ModifiedOn = DateTime.UtcNow;
             sessionFromDB.ModifiedBy = currentUser.Id;
             sessionFromDB.MovieId = sessionUpdate.MovieId;
             sessionFromDB.HallId = sessionUpdate.HallId;
-            if (sessionFromDB.HallId != sessionUpdate.HallId)
-            {
-                var deleteTickets = sessionFromDB.Tickets.ToList();
-                ticketDataAccess.DeleteList(deleteTickets);
-            }
             sessionDataAccess.Update(sessionFromDB);
-            var ticketsInHall = new List<Ticket>();
-            foreach (var place in placesInHall)
-            {
-                ticketsInHall.Add(new Ticket
-                {
-                    IsSold = false,
-                    DateOfSale = null,
-                    Price = sessionUpdate.Price,
-                    CreatedOn = DateTime.UtcNow,
-                    ModifiedOn = DateTime.UtcNow,
-                    CreatedBy = currentUser.Id,
-                    ModifiedBy = currentUser.Id,
-                    PlaceId = place.Id,
-                    Session = sessionFromDB
-                });
-            }
-            await ticketDataAccess.CreateListAsync(ticketsInHall);
             await sessionDataAccess.CommitAsync();
         }
         public async Task<SessionDetails> GetAsync(int id)
