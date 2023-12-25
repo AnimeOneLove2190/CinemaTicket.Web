@@ -208,11 +208,19 @@ namespace CinemaTicket.BusinessLogicServices
         public async Task SellTickets(List<int> ticketsIds)
         {
             var currentUser = await accountService.GetAccountAsync();
+
+            validationService.ValidationDuplicate(ticketsIds, nameof(ticketsIds));
+
             var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
             validationService.ValidationListNotFound(ticketsFromDB);
+
+            var ticketsFromDBIds = ticketsFromDB.Select(x => x.Id).ToList();
+            validationService.ValidationNotAllFound(ticketsFromDBIds, ticketsIds, nameof(ticketsIds));
+
             var unsoldTickets = ticketsFromDB.Where(x => x.IsSold == false).ToList();
             var unsoldTicketsIds = unsoldTickets.Select(x => x.Id).ToList();
             validationService.ValidationTicketsAreSold(unsoldTicketsIds, ticketsIds);
+
             var ticketsToUpdate = unsoldTickets;
             foreach (var ticket in ticketsToUpdate)
             {
@@ -230,8 +238,14 @@ namespace CinemaTicket.BusinessLogicServices
         }
         public async Task DeleteTickets(List<int> ticketsIds)
         {
+            validationService.ValidationDuplicate(ticketsIds, nameof(ticketsIds));
+
             var ticketsFromDB = await ticketDataAccess.GetTicketListAsync(ticketsIds);
             validationService.ValidationListNotFound(ticketsFromDB);
+
+            var ticketsFromDBIds = ticketsFromDB.Select(x => x.Id).ToList();
+            validationService.ValidationNotAllFound(ticketsFromDBIds, ticketsIds, nameof(ticketsIds));
+
             var unsoldTickets = ticketsFromDB.Where(x => !x.IsSold).ToList();
             var unsoldTicketsIds = unsoldTickets.Select(x => x.Id).ToList();
             validationService.ValidationTicketsAreSold(unsoldTicketsIds, ticketsIds);
