@@ -187,6 +187,8 @@ namespace CinemaTicket.BusinessLogicServices
             validationService.ValidationNotFound(sessionFromDB, id);
             var soldTicketsInSession = sessionFromDB.Tickets.Where(x => x.IsSold).ToList();
             validationService.ValidationEntityHasSoldTickets(nameof(Session), soldTicketsInSession);
+            var deleteTickets = sessionFromDB.Tickets.ToList();
+            ticketDataAccess.DeleteList(deleteTickets);
             sessionDataAccess.Delete(sessionFromDB);
             await sessionDataAccess.CommitAsync();
         }
